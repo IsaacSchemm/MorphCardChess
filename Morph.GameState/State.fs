@@ -12,8 +12,7 @@ type State = {
     Deck: Card list
     DarkHand: Card list
     LightHand: Card list
-    DarkCaptured: Piece list
-    LightCaptured: Piece list
+    Captured: Piece list
     Board: PiecePosition Set
     Step: Step
 }
@@ -32,8 +31,7 @@ module State =
             |> Seq.toList
         DarkHand = []
         LightHand = []
-        DarkCaptured = []
-        LightCaptured = []
+        Captured = []
         Board = Chess.initialBoard
         Step = {
             Team = firstTeam
@@ -102,16 +100,10 @@ module State =
                                     | _ -> Wazir
                             }
                         ]
-                        DarkCaptured = [
-                            yield! state.DarkCaptured
+                        Captured = [
+                            yield! state.Captured
                             for pp in state.Board do
                                 if pp.Position = newPosition && pp.Piece.Team = Dark then
-                                    yield pp.Piece
-                        ]
-                        LightCaptured = [
-                            yield! state.LightCaptured
-                            for pp in state.Board do
-                                if pp.Position = newPosition && pp.Piece.Team = Light then
                                     yield pp.Piece
                         ]
                         Step = {
@@ -135,8 +127,7 @@ module State =
                     Type = Wazir
                 }
             ]
-            DarkCaptured = []
-            LightCaptured = []
+            Captured = []
     }
 
 type InteractiveButton = {
@@ -146,6 +137,23 @@ type InteractiveButton = {
 }
 
 module Interactive =
+    let DescribeSuit suit =
+        match suit with
+        | Heart -> "♥"
+        | Club -> "♣"
+        | Diamond -> "♦"
+        | Spade -> "♠"
+
+    let DescribeCard card = String.concat " " [
+        DescribeSuit card.Suit
+
+        match card.Rank with
+        | 13 -> "K"
+        | 12 -> "Q"
+        | 11 -> "J"
+        | r -> string r
+    ]
+
     let GetHandButtons team state =
         seq {
             let step =
@@ -158,7 +166,7 @@ module Interactive =
                 | Dark -> state.DarkHand
             for card in hand do
                 {
-                    Label = $"{card}"
+                    Label = DescribeCard card
                     Enabled = step && hand.Length >= 3
                     NextState = lazy (state |> State.PlayCard card)
                 }
@@ -172,12 +180,31 @@ module Interactive =
         |> Seq.truncate 3
         |> Seq.toList
 
+    let DescribePiece (piece: Piece) = String.concat " " [
+        match piece.Team with
+        | Light -> "▼"
+        | Dark -> "▲"
+
+        DescribeSuit piece.Suit
+    ]
+
+    let DescribePosition (pos: Position) = String.concat "" [
+        string (char (int 'a' + pos.File - 1))
+        string pos.Rank
+    ]
+
+    let DescribePiecePosition (pp: PiecePosition) = String.concat "\r\n" [
+        DescribePiece pp.Piece
+
+        match pp.Type with
+        | Rook -> "♜"
+        | Bishop -> "♝"
+        | Knight -> "♞"
+        | Wazir -> ""
+    ]
+
     let GetBoardButtons state = [
-        let captured =
-            match state.Step.Team with
-            | Light -> state.LightCaptured
-            | Dark -> state.DarkCaptured
-        match captured with
+        match state.Captured with
         | capturedPiece::_ ->
             for rank in List.rev [1..8] do [
                 for file in [1..8] do
@@ -200,8 +227,8 @@ module Interactive =
                     {
                         Label =
                             match existingPP with
-                            | Some px -> $"{px.Piece.Team} {px.Piece.Suit} ({px.Type})"
-                            | _ -> $"{pos}"
+                            | Some px -> DescribePiecePosition px
+                            | _ -> DescribePosition pos
                         Enabled =
                             inBack
                             && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
@@ -220,7 +247,7 @@ module Interactive =
                     match existingPP with
                     | Some px when px.Piece.Team = state.Step.Team ->
                         {
-                            Label = $"{px.Piece.Team} {px.Piece.Suit} ({px.Type})"
+                            Label = DescribePiecePosition px
                             Enabled =
                                 match state.Step.Card, state.Step.Piece with
                                 | Some card, None ->
@@ -231,7 +258,7 @@ module Interactive =
                         }
                     | Some px ->
                         {
-                            Label = $"{px.Piece.Team} {px.Piece.Suit} ({px.Type})"
+                            Label = DescribePiecePosition px
                             Enabled =
                                 state.Board
                                 |> Seq.where (fun pp -> Some pp.Piece = state.Step.Piece)
@@ -241,7 +268,7 @@ module Interactive =
                         }
                     | None ->
                         {
-                            Label = $"{pos}"
+                            Label = DescribePosition pos
                             Enabled =
                                 state.Board
                                 |> Seq.where (fun pp -> Some pp.Piece = state.Step.Piece)
