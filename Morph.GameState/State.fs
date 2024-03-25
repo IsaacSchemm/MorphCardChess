@@ -6,6 +6,7 @@ type Step = {
     Team: Team
     Card: Card option
     Piece: Piece option
+    PromotionChoices: Type list
 }
 
 type State = {
@@ -37,6 +38,7 @@ module State =
             Team = firstTeam
             Card = None
             Piece = None
+            PromotionChoices = []
         }
     }
 
@@ -90,14 +92,8 @@ module State =
                                 if pp.Position <> newPosition && pp.Piece <> piece then
                                     yield pp
                             yield {
-                                Piece = existingPP.Piece
-                                Position = newPosition
-                                Type =
-                                    match state.Step.Card.Value.Rank with
-                                    | 13 -> Rook
-                                    | 12 -> Bishop
-                                    | 11 -> Knight
-                                    | _ -> Wazir
+                                existingPP with
+                                    Position = newPosition
                             }
                         ]
                         Captured = [
@@ -107,13 +103,39 @@ module State =
                                     yield pp.Piece
                         ]
                         Step = {
-                            Team = match state.Step.Team with Light -> Dark | Dark -> Light
-                            Card = None
-                            Piece = None
+                            state.Step with
+                                PromotionChoices =
+                                    let s =
+                                        match state.Step.Card.Value.Rank with
+                                        | 13 -> Rook
+                                        | 12 -> Bishop
+                                        | 11 -> Knight
+                                        | _ -> Wazir
+                                    [existingPP.Type; s]
                         }
                 }
             else
                 state
+
+    let PromotePiece t state =
+        match state.Step.Piece with
+        | None -> state
+        | Some piece -> {
+            state with
+                Board = Set.ofList [
+                    for pp in state.Board do
+                        if pp.Piece <> piece then
+                            yield pp
+                        else
+                            yield { pp with Type = t }
+                ]
+                Step = {
+                    Team = match state.Step.Team with Light -> Dark | Dark -> Light
+                    Card = None
+                    Piece = None
+                    PromotionChoices = []
+                }
+        }
 
     let PlacePiece newPosition piece state = {
         state with
@@ -154,8 +176,23 @@ module Interactive =
         | r -> string r
     ]
 
+    let DescribeType t =
+        match t with
+        | Rook -> "♜"
+        | Bishop -> "♝"
+        | Knight -> "♞"
+        | Wazir -> ""
+
     let GetHandButtons team state =
         seq {
+            // temporary
+            for pc in state.Step.PromotionChoices do
+                {
+                    Label = DescribeType pc
+                    Enabled = true
+                    NextState = lazy (state |> State.PromotePiece pc)
+                }
+
             let step =
                 state.Step.Team = team
                 && state.Step.Card = None
@@ -196,11 +233,7 @@ module Interactive =
     let DescribePiecePosition (pp: PiecePosition) = String.concat "\r\n" [
         DescribePiece pp.Piece
 
-        match pp.Type with
-        | Rook -> "♜"
-        | Bishop -> "♝"
-        | Knight -> "♞"
-        | Wazir -> ""
+        DescribeType pp.Type
     ]
 
     let GetBoardButtons state = [
