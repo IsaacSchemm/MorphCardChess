@@ -1,5 +1,7 @@
 ﻿namespace Morph.GameState
 
+open System.Drawing
+
 type Card = { Suit: Suit; Rank: int }
 
 type Step = {
@@ -156,6 +158,7 @@ type InteractiveButton = {
     Label: string
     Enabled: bool
     NextState: State Lazy
+    Color: Color
 }
 
 module Interactive =
@@ -165,6 +168,13 @@ module Interactive =
         | Club -> "♣"
         | Diamond -> "♦"
         | Spade -> "♠"
+
+    let GetColor suit =
+        match suit with
+        | Heart -> Color.Red
+        | Club -> Color.DarkGreen
+        | Diamond -> Color.Blue
+        | Spade -> Color.Black
 
     let DescribeCard card = String.concat " " [
         DescribeSuit card.Suit
@@ -178,21 +188,34 @@ module Interactive =
 
     let DescribeType t =
         match t with
-        | Rook -> "♜"
-        | Bishop -> "♝"
-        | Knight -> "♞"
-        | Wazir -> ""
+        | Rook -> "♜ Rook"
+        | Bishop -> "♝ Bishop"
+        | Knight -> "♞ Knight"
+        | Wazir -> "Wazir"
+
+    let GetPromotionButtons team state =
+        seq {
+            if state.Step.Team = team then
+                for pc in state.Step.PromotionChoices do
+                    {
+                        Label = DescribeType pc
+                        Enabled = true
+                        NextState = lazy (state |> State.PromotePiece pc)
+                        Color = SystemColors.ControlText
+                    }
+            while true do
+                {
+                    Label = ""
+                    Enabled = false
+                    NextState = lazy state
+                    Color = SystemColors.ControlText
+                }
+        }
+        |> Seq.truncate 2
+        |> Seq.toList
 
     let GetHandButtons team state =
         seq {
-            // temporary
-            for pc in state.Step.PromotionChoices do
-                {
-                    Label = DescribeType pc
-                    Enabled = true
-                    NextState = lazy (state |> State.PromotePiece pc)
-                }
-
             let step =
                 state.Step.Team = team
                 && state.Step.Card = None
@@ -206,12 +229,14 @@ module Interactive =
                     Label = DescribeCard card
                     Enabled = step && hand.Length >= 3
                     NextState = lazy (state |> State.PlayCard card)
+                    Color = GetColor card.Suit
                 }
             while true do
                 {
                     Label = "Draw"
                     Enabled = step && state.Deck <> []
                     NextState = lazy (state |> State.Draw team)
+                    Color = SystemColors.ControlText
                 }
         }
         |> Seq.truncate 3
@@ -267,47 +292,42 @@ module Interactive =
                             && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
                             && not (attackedSquares |> Seq.contains pos)
                         NextState = lazy (state |> State.PlacePiece pos capturedPiece)
+                        Color = GetColor capturedPiece.Suit
                     }
             ]
         | [] ->
             for rank in List.rev [1..8] do [
                 for file in [1..8] do
                     let pos = { Rank = rank; File = file }
-                    let existingPP =
+                    let pieceAtThisPosition =
                         state.Board
                         |> Seq.where (fun pp -> pp.Position = pos)
                         |> Seq.tryExactlyOne
-                    match existingPP with
-                    | Some px when px.Piece.Team = state.Step.Team ->
+                    match pieceAtThisPosition, state.Step.Card, state.Step.Piece with
+                    | Some myPiece, Some selectedCard, None when myPiece.Piece.Team = state.Step.Team ->
                         {
-                            Label = DescribePiecePosition px
+                            Label = DescribePiecePosition myPiece
+                            Enabled = selectedCard.Suit = myPiece.Piece.Suit || selectedCard.Suit = Spade
+                            NextState = lazy (state |> State.SelectPiece myPiece.Piece)
+                            Color = GetColor myPiece.Piece.Suit
+                        }
+                    | _ ->
+                        {
+                            Label =
+                                match pieceAtThisPosition with
+                                | Some piece -> DescribePiecePosition piece
+                                | None -> DescribePosition pos
                             Enabled =
-                                match state.Step.Card, state.Step.Piece with
-                                | Some card, None ->
-                                    card.Suit = px.Piece.Suit || card.Suit = Spade
+                                match state.Step.Piece, state.Step.PromotionChoices with
+                                | Some selectedPiece, [] ->
+                                    state.Board
+                                    |> Seq.where (fun pp -> pp.Piece = selectedPiece)
+                                    |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
+                                    |> Seq.contains pos
                                 | _ ->
                                     false
-                            NextState = lazy (state |> State.SelectPiece px.Piece)
-                        }
-                    | Some px ->
-                        {
-                            Label = DescribePiecePosition px
-                            Enabled =
-                                state.Board
-                                |> Seq.where (fun pp -> Some pp.Piece = state.Step.Piece)
-                                |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
-                                |> Seq.contains pos
                             NextState = lazy (state |> State.MovePiece pos)
-                        }
-                    | None ->
-                        {
-                            Label = DescribePosition pos
-                            Enabled =
-                                state.Board
-                                |> Seq.where (fun pp -> Some pp.Piece = state.Step.Piece)
-                                |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
-                                |> Seq.contains pos
-                            NextState = lazy (state |> State.MovePiece pos)
+                            Color = SystemColors.ControlText
                         }
         ]
     ]

@@ -30,6 +30,15 @@ namespace Morph
                 tableLayoutPanel1.Controls.Add(button);
             }
 
+            btnPromoLight1.Click += (_, __) =>
+                Manager.State = Interactive.GetPromotionButtons(Team.Light, Manager.State)[0].NextState.Value;
+            btnPromoLight2.Click += (_, __) =>
+                Manager.State = Interactive.GetPromotionButtons(Team.Light, Manager.State)[1].NextState.Value;
+            btnPromoDark1.Click += (_, __) =>
+                Manager.State = Interactive.GetPromotionButtons(Team.Dark, Manager.State)[0].NextState.Value;
+            btnPromoDark2.Click += (_, __) =>
+                Manager.State = Interactive.GetPromotionButtons(Team.Dark, Manager.State)[1].NextState.Value;
+
             for (int row = 0; row < 8; row++)
             {
                 int x = row;
@@ -77,7 +86,9 @@ namespace Morph
             var state = new
             {
                 TopCards = Interactive.GetHandButtons(Team.Light, Manager.State),
+                TopPromotion = Interactive.GetPromotionButtons(Team.Light, Manager.State),
                 Rows = Interactive.GetBoardButtons(Manager.State),
+                BottomPromotion = Interactive.GetPromotionButtons(Team.Dark, Manager.State),
                 BottomCards = Interactive.GetHandButtons(Team.Dark, Manager.State),
             };
 
@@ -85,7 +96,13 @@ namespace Morph
             {
                 _topCards[x].Text = state.TopCards[x].Label;
                 _topCards[x].Enabled = state.TopCards[x].Enabled;
+                _topCards[x].ForeColor = state.TopCards[x].Color;
             }
+
+            btnPromoLight1.Text = state.TopPromotion[0].Label;
+            btnPromoLight1.Enabled = state.TopPromotion[0].Enabled;
+            btnPromoLight2.Text = state.TopPromotion[1].Label;
+            btnPromoLight2.Enabled = state.TopPromotion[1].Enabled;
 
             for (int x = 0; x < state.Rows.Length; x++)
             {
@@ -93,13 +110,20 @@ namespace Morph
                 {
                     _cells[x][y].Text = state.Rows[x][y].Label;
                     _cells[x][y].Enabled = state.Rows[x][y].Enabled;
+                    _cells[x][y].ForeColor = state.Rows[x][y].Color;
                 }
             }
+
+            btnPromoDark1.Text = state.BottomPromotion[0].Label;
+            btnPromoDark1.Enabled = state.BottomPromotion[0].Enabled;
+            btnPromoDark2.Text = state.BottomPromotion[1].Label;
+            btnPromoDark2.Enabled = state.BottomPromotion[1].Enabled;
 
             for (int x = 0; x < state.BottomCards.Length; x++)
             {
                 _bottomCards[x].Text = state.BottomCards[x].Label;
                 _bottomCards[x].Enabled = state.BottomCards[x].Enabled;
+                _bottomCards[x].ForeColor = state.BottomCards[x].Color;
             }
 
             btnUndo.Enabled = Manager.PreviousState != null;
