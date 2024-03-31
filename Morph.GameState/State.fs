@@ -101,7 +101,7 @@ module State =
                         Captured = [
                             yield! state.Captured
                             for pp in state.Board do
-                                if pp.Position = newPosition && pp.Piece.Team = Dark then
+                                if pp.Position = newPosition && pp.Piece <> piece then
                                     yield pp.Piece
                         ]
                         Step = {
@@ -151,15 +151,19 @@ module State =
                     Type = Wazir
                 }
             ]
-            Captured = []
+            Captured = state.Captured |> List.except [piece]
     }
 
 type InteractiveButton = {
     Label: string
     Enabled: bool
     NextState: State Lazy
-    Color: Color
-}
+    Color: Color option
+} with
+    member this.ForeColor =
+        match this.Color with
+        | Some color -> color
+        | _ -> SystemColors.ControlText
 
 module Interactive =
     let DescribeSuit suit =
@@ -201,14 +205,14 @@ module Interactive =
                         Label = DescribeType pc
                         Enabled = true
                         NextState = lazy (state |> State.PromotePiece pc)
-                        Color = SystemColors.ControlText
+                        Color = None
                     }
             while true do
                 {
                     Label = ""
                     Enabled = false
                     NextState = lazy state
-                    Color = SystemColors.ControlText
+                    Color = None
                 }
         }
         |> Seq.truncate 2
@@ -229,18 +233,21 @@ module Interactive =
                     Label = DescribeCard card
                     Enabled = step && hand.Length >= 3
                     NextState = lazy (state |> State.PlayCard card)
-                    Color = GetColor card.Suit
+                    Color = Some (GetColor card.Suit)
                 }
             while true do
                 {
                     Label = "Draw"
                     Enabled = step && state.Deck <> []
                     NextState = lazy (state |> State.Draw team)
-                    Color = SystemColors.ControlText
+                    Color = None
                 }
         }
         |> Seq.truncate 3
         |> Seq.toList
+
+    let GetHandAndPromotionButtons team state =
+        GetPromotionButtons team state @ GetHandButtons team state
 
     let DescribePiece (piece: Piece) = String.concat " " [
         match piece.Team with
@@ -255,14 +262,32 @@ module Interactive =
         string pos.Rank
     ]
 
-    let DescribePiecePosition (pp: PiecePosition) = String.concat "\r\n" [
-        DescribePiece pp.Piece
+    let DescribePiecePosition (pp: PiecePosition) = String.concat "" [
+        "../../../cards/"
 
-        DescribeType pp.Type
+        match pp.Piece.Suit with
+        | Heart -> "hearts"
+        | Club -> "clubs"
+        | Diamond -> "diamonds"
+        | Spade -> "spades"
+
+        "/"
+
+        match pp.Piece.Team, pp.Type with
+        | Light, Rook -> "8"
+        | Light, Bishop -> "7"
+        | Light, Knight -> "6"
+        | Light, Wazir -> "5"
+        | Dark, Rook -> "4"
+        | Dark, Bishop -> "3"
+        | Dark, Knight -> "2"
+        | Dark, Wazir -> "1"
+
+        ".png"
     ]
 
     let GetBoardButtons state = [
-        match state.Captured with
+        match state.Captured |> List.where (fun piece -> piece.Team = state.Step.Team) with
         | capturedPiece::_ ->
             for rank in List.rev [1..8] do [
                 for file in [1..8] do
@@ -274,25 +299,27 @@ module Interactive =
                         | Dark, 1
                         | Dark, 2 -> true
                         | _ -> false
-                    let attackedSquares =
+                    let squaresIWouldAttack =
+                        Chess.getLegalMoves state.Board { Piece = capturedPiece; Position = pos; Type = Wazir }
+                    let opponentPositions =
                         state.Board
-                        |> Seq.where (fun x -> x.Piece.Team <> state.Step.Team)
-                        |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
-                    let existingPP =
+                        |> Seq.map (fun pp -> pp.Position)
+                        |> Set.ofSeq
+                    let pieceAtThisPosition =
                         state.Board
                         |> Seq.where (fun pp -> pp.Position = pos)
                         |> Seq.tryExactlyOne
                     {
                         Label =
-                            match existingPP with
+                            match pieceAtThisPosition with
                             | Some px -> DescribePiecePosition px
                             | _ -> DescribePosition pos
                         Enabled =
                             inBack
                             && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
-                            && not (attackedSquares |> Seq.contains pos)
+                            && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
                         NextState = lazy (state |> State.PlacePiece pos capturedPiece)
-                        Color = GetColor capturedPiece.Suit
+                        Color = Some (GetColor capturedPiece.Suit)
                     }
             ]
         | [] ->
@@ -309,14 +336,14 @@ module Interactive =
                             Label = DescribePiecePosition myPiece
                             Enabled = selectedCard.Suit = myPiece.Piece.Suit || selectedCard.Suit = Spade
                             NextState = lazy (state |> State.SelectPiece myPiece.Piece)
-                            Color = GetColor myPiece.Piece.Suit
+                            Color = Some (GetColor myPiece.Piece.Suit)
                         }
                     | _ ->
                         {
                             Label =
                                 match pieceAtThisPosition with
-                                | Some piece -> DescribePiecePosition piece
-                                | None -> DescribePosition pos
+                                | Some piecePos -> DescribePiecePosition piecePos
+                                | None -> ""
                             Enabled =
                                 match state.Step.Piece, state.Step.PromotionChoices with
                                 | Some selectedPiece, [] ->
@@ -327,7 +354,9 @@ module Interactive =
                                 | _ ->
                                     false
                             NextState = lazy (state |> State.MovePiece pos)
-                            Color = SystemColors.ControlText
+                            Color =
+                                pieceAtThisPosition
+                                |> Option.map (fun pp -> GetColor pp.Piece.Suit)
                         }
         ]
     ]
