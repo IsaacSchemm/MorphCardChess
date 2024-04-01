@@ -88,6 +88,25 @@ namespace Morph
                 BottomCards = Interactive.GetHandAndPromotionButtons(Team.Dark, Manager.State),
             };
 
+            IEnumerable<InteractiveButton> getAllButtons()
+            {
+                foreach (var c in state.TopCards)
+                    yield return c;
+                foreach (var r in state.Rows)
+                    foreach (var c in r)
+                        yield return c;
+                foreach (var c in state.BottomCards)
+                    yield return c;
+            }
+
+            var states = getAllButtons().Where(x => x.Enabled).Select(x => x.NextState.Value).Distinct();
+
+            if (states.Count() == 1 && Manager.NextState == null)
+            {
+                Manager.State = states.Single();
+                return;
+            }
+
             for (int x = 0; x < state.TopCards.Length; x++)
             {
                 _topCards[x].Text = state.TopCards[x].Label;
