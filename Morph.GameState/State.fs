@@ -4,12 +4,12 @@ open System.Drawing
 
 type Card = { Suit: Suit; Rank: int }
 
-type Step = {
-    Team: Team
-    Card: Card option
-    Piece: Piece option
-    PromotionChoices: Type list
-}
+type Stage =
+| ReplaceCapturedPiece of Piece
+| ChooseCard
+| ChoosePiece of Card
+| MovePiece of Card * Piece
+| PromotePiece of Piece * Type list
 
 type State = {
     Deck: Card list
@@ -17,7 +17,8 @@ type State = {
     LightHand: Card list
     Captured: Piece list
     Board: PiecePosition Set
-    Step: Step
+    Team: Team
+    Stage: Stage
 }
 
 module State =
@@ -36,17 +37,13 @@ module State =
         LightHand = []
         Captured = []
         Board = Chess.initialBoard
-        Step = {
-            Team = firstTeam
-            Card = None
-            Piece = None
-            PromotionChoices = []
-        }
+        Team = firstTeam
+        Stage = ChooseCard
     }
 
     let Draw team state =
         match  state.Deck, state.LightHand.Length with
-        | top :: rest, len when len < 3 && team = state.Step.Team ->
+        | top :: rest, len when len < 3 && team = state.Team ->
             {
                 state with
                     Deck = rest
@@ -65,22 +62,20 @@ module State =
         state with
             LightHand = state.LightHand |> List.except [card]
             DarkHand = state.DarkHand |> List.except [card]
-            Step = {
-                state.Step with Card = Some card
-            }
+            Stage = ChoosePiece card
     }
 
-    let SelectPiece piece state = {
-        state with
-            Step = {
-                state.Step with Piece = Some piece
+    let SelectPiece piece state =
+        match state.Stage with
+        | ChoosePiece card ->
+            {
+                state with Stage = MovePiece (card, piece)
             }
-    }
+        | _ -> state
 
     let MovePiece newPosition state =
-        match state.Step.Piece with
-        | None -> state
-        | Some piece ->
+        match state.Stage with
+        | MovePiece (card, piece) ->
             let existingPP =
                 state.Board
                 |> Seq.where (fun pp -> pp.Piece = piece)
@@ -104,40 +99,40 @@ module State =
                                 if pp.Position = newPosition && pp.Piece <> piece then
                                     yield pp.Piece
                         ]
-                        Step = {
-                            state.Step with
-                                PromotionChoices =
-                                    let s =
-                                        match state.Step.Card.Value.Rank with
-                                        | 13 -> Rook
-                                        | 12 -> Bishop
-                                        | 11 -> Knight
-                                        | _ -> Wazir
-                                    [existingPP.Type; s]
-                        }
+                        Stage =
+                            let s =
+                                match card.Rank with
+                                | 13 -> Rook
+                                | 12 -> Bishop
+                                | 11 -> Knight
+                                | _ -> Wazir
+                            PromotePiece (piece, [existingPP.Type; s])
                 }
             else
                 state
+        | _ -> state
 
     let PromotePiece t state =
-        match state.Step.Piece with
-        | None -> state
-        | Some piece -> {
-            state with
-                Board = Set.ofList [
-                    for pp in state.Board do
-                        if pp.Piece <> piece then
-                            yield pp
-                        else
-                            yield { pp with Type = t }
-                ]
-                Step = {
-                    Team = match state.Step.Team with Light -> Dark | Dark -> Light
-                    Card = None
-                    Piece = None
-                    PromotionChoices = []
-                }
-        }
+        match state.Stage with
+        | PromotePiece (piece, _) ->
+            let captured, nextStage =
+                match state.Captured with
+                | c::rest -> rest, ReplaceCapturedPiece c
+                | [] -> [], ChooseCard
+            {
+                state with
+                    Board = Set.ofList [
+                        for pp in state.Board do
+                            if pp.Piece <> piece then
+                                yield pp
+                            else
+                                yield { pp with Type = t }
+                    ]
+                    Captured = captured
+                    Team = match state.Team with Light -> Dark | Dark -> Light
+                    Stage = nextStage
+            }
+        | _ -> state
 
     let PlacePiece newPosition piece state = {
         state with
@@ -152,6 +147,7 @@ module State =
                 }
             ]
             Captured = state.Captured |> List.except [piece]
+            Stage = ChooseCard
     }
 
 type InteractiveButton = {
@@ -199,14 +195,17 @@ module Interactive =
 
     let GetPromotionButtons team state =
         seq {
-            if state.Step.Team = team then
-                for pc in state.Step.PromotionChoices do
-                    {
-                        Label = DescribeType pc
-                        Enabled = true
-                        NextState = lazy (state |> State.PromotePiece pc)
-                        Color = None
-                    }
+            if state.Team = team then
+                match state.Stage with
+                | PromotePiece (_, types) ->
+                    for pc in types do
+                        {
+                            Label = DescribeType pc
+                            Enabled = true
+                            NextState = lazy (state |> State.PromotePiece pc)
+                            Color = None
+                        }
+                | _ -> ()
             while true do
                 {
                     Label = ""
@@ -221,9 +220,8 @@ module Interactive =
     let GetHandButtons team state =
         seq {
             let step =
-                state.Step.Team = team
-                && state.Step.Card = None
-                && state.Step.Piece = None
+                state.Team = team
+                && state.Stage = ChooseCard
             let hand =
                 match team with
                 | Light -> state.LightHand
@@ -286,77 +284,86 @@ module Interactive =
         ".png"
     ]
 
+    let GetBoardButton state rank file =
+        let pos = { Rank = rank; File = file }
+        let pieceAtThisPosition =
+            state.Board
+            |> Seq.where (fun pp -> pp.Position = pos)
+            |> Seq.tryExactlyOne
+        match state.Stage, pieceAtThisPosition with
+        | ReplaceCapturedPiece capturedPiece, _ ->
+            // Determining where to place a captured piece
+            let inBack =
+                match state.Team, rank with
+                | Light, 8
+                | Light, 7
+                | Dark, 1
+                | Dark, 2 -> true
+                | _ -> false
+            let squaresIWouldAttack =
+                Chess.getLegalMoves state.Board { Piece = capturedPiece; Position = pos; Type = Wazir }
+            let opponentPositions =
+                state.Board
+                |> Seq.map (fun pp -> pp.Position)
+                |> Set.ofSeq
+            let pieceAtThisPosition =
+                state.Board
+                |> Seq.where (fun pp -> pp.Position = pos)
+                |> Seq.tryExactlyOne
+            {
+                Label =
+                    match pieceAtThisPosition with
+                    | Some px -> DescribePiecePosition px
+                    | _ -> DescribePosition pos
+                Enabled =
+                    inBack
+                    && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
+                    && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
+                NextState = lazy (state |> State.PlacePiece pos capturedPiece)
+                Color = Some (GetColor capturedPiece.Suit)
+            }
+        | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
+            // Determining which piece to move after playing a card
+            {
+                Label = DescribePiecePosition pieceHere
+                Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
+                NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
+                Color = Some (GetColor pieceHere.Piece.Suit)
+            }
+        | MovePiece (_, piece), _ ->
+            // Determine where to move the piece to
+            {
+                Label =
+                    match pieceAtThisPosition with
+                    | Some piecePos -> DescribePiecePosition piecePos
+                    | None -> ""
+                Enabled =
+                    state.Board
+                    |> Seq.where (fun pp -> pp.Piece = piece)
+                    |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
+                    |> Seq.contains pos
+                NextState = lazy (state |> State.MovePiece pos)
+                Color =
+                    pieceAtThisPosition
+                    |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+            }
+        | _ ->
+            // Board inactive
+            {
+                Label =
+                    match pieceAtThisPosition with
+                    | Some piecePos -> DescribePiecePosition piecePos
+                    | None -> ""
+                Enabled = false
+                NextState = lazy state
+                Color =
+                    pieceAtThisPosition
+                    |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+            }
+
     let GetBoardButtons state = [
-        match state.Captured |> List.where (fun piece -> piece.Team = state.Step.Team) with
-        | capturedPiece::_ ->
-            for rank in List.rev [1..8] do [
-                for file in [1..8] do
-                    let pos = { Rank = rank; File = file }
-                    let inBack =
-                        match state.Step.Team, rank with
-                        | Light, 8
-                        | Light, 7
-                        | Dark, 1
-                        | Dark, 2 -> true
-                        | _ -> false
-                    let squaresIWouldAttack =
-                        Chess.getLegalMoves state.Board { Piece = capturedPiece; Position = pos; Type = Wazir }
-                    let opponentPositions =
-                        state.Board
-                        |> Seq.map (fun pp -> pp.Position)
-                        |> Set.ofSeq
-                    let pieceAtThisPosition =
-                        state.Board
-                        |> Seq.where (fun pp -> pp.Position = pos)
-                        |> Seq.tryExactlyOne
-                    {
-                        Label =
-                            match pieceAtThisPosition with
-                            | Some px -> DescribePiecePosition px
-                            | _ -> DescribePosition pos
-                        Enabled =
-                            inBack
-                            && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
-                            && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
-                        NextState = lazy (state |> State.PlacePiece pos capturedPiece)
-                        Color = Some (GetColor capturedPiece.Suit)
-                    }
-            ]
-        | [] ->
-            for rank in List.rev [1..8] do [
-                for file in [1..8] do
-                    let pos = { Rank = rank; File = file }
-                    let pieceAtThisPosition =
-                        state.Board
-                        |> Seq.where (fun pp -> pp.Position = pos)
-                        |> Seq.tryExactlyOne
-                    match pieceAtThisPosition, state.Step.Card, state.Step.Piece with
-                    | Some myPiece, Some selectedCard, None when myPiece.Piece.Team = state.Step.Team ->
-                        {
-                            Label = DescribePiecePosition myPiece
-                            Enabled = selectedCard.Suit = myPiece.Piece.Suit || selectedCard.Suit = Spade
-                            NextState = lazy (state |> State.SelectPiece myPiece.Piece)
-                            Color = Some (GetColor myPiece.Piece.Suit)
-                        }
-                    | _ ->
-                        {
-                            Label =
-                                match pieceAtThisPosition with
-                                | Some piecePos -> DescribePiecePosition piecePos
-                                | None -> ""
-                            Enabled =
-                                match state.Step.Piece, state.Step.PromotionChoices with
-                                | Some selectedPiece, [] ->
-                                    state.Board
-                                    |> Seq.where (fun pp -> pp.Piece = selectedPiece)
-                                    |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
-                                    |> Seq.contains pos
-                                | _ ->
-                                    false
-                            NextState = lazy (state |> State.MovePiece pos)
-                            Color =
-                                pieceAtThisPosition
-                                |> Option.map (fun pp -> GetColor pp.Piece.Suit)
-                        }
+        for rank in List.rev [1..8] do [
+            for file in [1..8] do
+                GetBoardButton state rank file
         ]
     ]
