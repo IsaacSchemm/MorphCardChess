@@ -4,18 +4,28 @@ open System.Drawing
 
 type Card = { Suit: Suit; Rank: int }
 
+type MovementStage = {
+    Card: Card
+    Piece: Piece
+}
+
+type PromotionStage = {
+    Piece: Piece
+    PromotionOptions: Type list
+    CapturedPiece: Piece option
+}
+
 type Stage =
 | ReplaceCapturedPiece of Piece
 | ChooseCard
 | ChoosePiece of Card
-| MovePiece of Card * Piece
-| PromotePiece of Piece * Type list
+| MovePiece of MovementStage
+| PromotePiece of PromotionStage
 
 type State = {
     Deck: Card list
     DarkHand: Card list
     LightHand: Card list
-    Captured: Piece list
     Board: PiecePosition Set
     Team: Team
     Stage: Stage
@@ -35,7 +45,6 @@ module State =
             |> Seq.toList
         DarkHand = []
         LightHand = []
-        Captured = []
         Board = Chess.initialBoard
         Team = firstTeam
         Stage = ChooseCard
@@ -69,16 +78,20 @@ module State =
         match state.Stage with
         | ChoosePiece card ->
             {
-                state with Stage = MovePiece (card, piece)
+                state with
+                    Stage = MovePiece {
+                        Card = card
+                        Piece = piece
+                    }
             }
         | _ -> state
 
     let MovePiece newPosition state =
         match state.Stage with
-        | MovePiece (card, piece) ->
+        | MovePiece movementStage ->
             let existingPP =
                 state.Board
-                |> Seq.where (fun pp -> pp.Piece = piece)
+                |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
                 |> Seq.head
             let legalMoves = Chess.getLegalMoves state.Board existingPP
             if Seq.contains newPosition legalMoves then
@@ -86,27 +99,31 @@ module State =
                     state with
                         Board = Set.ofList [
                             for pp in state.Board do
-                                if pp.Position <> newPosition && pp.Piece <> piece then
+                                if pp.Position <> newPosition && pp.Piece <> movementStage.Piece then
                                     yield pp
                             yield {
                                 existingPP with
                                     Position = newPosition
                             }
                         ]
-                        Captured = [
-                            yield! state.Captured
-                            for pp in state.Board do
-                                if pp.Position = newPosition && pp.Piece <> piece then
-                                    yield pp.Piece
-                        ]
                         Stage =
-                            let s =
-                                match card.Rank with
-                                | 13 -> Rook
-                                | 12 -> Bishop
-                                | 11 -> Knight
-                                | _ -> Wazir
-                            PromotePiece (piece, [existingPP.Type; s])
+                            PromotePiece {
+                                Piece = movementStage.Piece
+                                PromotionOptions = [
+                                    match movementStage.Card.Rank with
+                                    | 13 -> Rook
+                                    | 12 -> Bishop
+                                    | 11 -> Knight
+                                    | _ -> Wazir
+
+                                    existingPP.Type
+                                ]
+                                CapturedPiece = List.tryExactlyOne [
+                                    for pp in state.Board do
+                                        if pp.Position = newPosition && pp.Piece <> movementStage.Piece then
+                                            yield pp.Piece
+                                ]
+                            }
                 }
             else
                 state
@@ -114,21 +131,20 @@ module State =
 
     let PromotePiece t state =
         match state.Stage with
-        | PromotePiece (piece, _) ->
-            let captured, nextStage =
-                match state.Captured with
-                | c::rest -> rest, ReplaceCapturedPiece c
-                | [] -> [], ChooseCard
+        | PromotePiece promotionStage ->
+            let nextStage =
+                match promotionStage.CapturedPiece with
+                | Some capturedPiece -> ReplaceCapturedPiece capturedPiece
+                | None -> ChooseCard
             {
                 state with
                     Board = Set.ofList [
                         for pp in state.Board do
-                            if pp.Piece <> piece then
+                            if pp.Piece <> promotionStage.Piece then
                                 yield pp
                             else
                                 yield { pp with Type = t }
                     ]
-                    Captured = captured
                     Team = match state.Team with Light -> Dark | Dark -> Light
                     Stage = nextStage
             }
@@ -146,7 +162,6 @@ module State =
                     Type = Wazir
                 }
             ]
-            Captured = state.Captured |> List.except [piece]
             Stage = ChooseCard
     }
 
@@ -197,8 +212,8 @@ module Interactive =
         seq {
             if state.Team = team then
                 match state.Stage with
-                | PromotePiece (_, types) ->
-                    for pc in types do
+                | PromotePiece promotionStage ->
+                    for pc in promotionStage.PromotionOptions do
                         {
                             Label = DescribeType pc
                             Enabled = true
@@ -337,7 +352,7 @@ module Interactive =
                 NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
                 Color = Some (GetColor pieceHere.Piece.Suit)
             }
-        | MovePiece (_, piece), _ ->
+        | MovePiece movementStage, _ ->
             // Determine where to move the piece to
             {
                 Label =
@@ -346,7 +361,7 @@ module Interactive =
                     | None -> ""
                 Enabled =
                     state.Board
-                    |> Seq.where (fun pp -> pp.Piece = piece)
+                    |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
                     |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
                     |> Seq.contains pos
                 NextState = lazy (state |> State.MovePiece pos)
