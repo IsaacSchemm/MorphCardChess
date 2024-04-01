@@ -229,15 +229,22 @@ module Interactive =
             for card in hand do
                 {
                     Label = DescribeCard card
-                    Enabled = step && hand.Length >= 3
+                    Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     Color = Some (GetColor card.Suit)
                 }
-            while true do
+            for _ in state.Deck do
                 {
                     Label = "Draw"
-                    Enabled = step && state.Deck <> []
+                    Enabled = step
                     NextState = lazy (state |> State.Draw team)
+                    Color = None
+                }
+            while true do
+                {
+                    Label = ""
+                    Enabled = false
+                    NextState = lazy state
                     Color = None
                 }
         }
