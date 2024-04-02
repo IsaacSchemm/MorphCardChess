@@ -12,6 +12,7 @@ namespace Morph
 
         private void PerformClick(InteractiveButton interactiveButton)
         {
+            // TODO: implement auto check up here
             if (interactiveButton.Enabled)
                 Manager.State = interactiveButton.NextState.Value;
         }
@@ -99,12 +100,16 @@ namespace Morph
                     yield return c;
             }
 
-            var states = getAllButtons().Where(x => x.Enabled).Select(x => x.NextState.Value).Distinct();
-
-            if (states.Count() == 1 && Manager.NextState == null)
+            var buttons = getAllButtons().Where(x => x.Enabled);
+            if (buttons.All(b => b.Auto))
             {
-                Manager.State = states.Single();
-                return;
+                var states = getAllButtons().Where(x => x.Enabled).Select(x => x.NextState.Value).Distinct();
+
+                if (states.Count() == 1 && Manager.NextState == null)
+                {
+                    Manager.State = states.Single();
+                    return;
+                }
             }
 
             for (int x = 0; x < state.TopCards.Length; x++)
@@ -136,6 +141,9 @@ namespace Morph
                 _bottomCards[x].Enabled = state.BottomCards[x].Enabled;
                 _bottomCards[x].ForeColor = state.BottomCards[x].ForeColor;
             }
+
+            txtLightScore.Text = Interactive.DescribeScore(Team.Light, Manager.State);
+            txtDarkScore.Text = Interactive.DescribeScore(Team.Dark, Manager.State);
 
             btnUndo.Enabled = Manager.PreviousState != null;
             btnRedo.Enabled = Manager.NextState != null;

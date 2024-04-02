@@ -26,6 +26,7 @@ type State = {
     Deck: Card list
     DarkHand: Card list
     LightHand: Card list
+    Points: (Team * Suit) list
     Board: PiecePosition Set
     Team: Team
     Stage: Stage
@@ -45,6 +46,7 @@ module State =
             |> Seq.toList
         DarkHand = []
         LightHand = []
+        Points = []
         Board = Chess.initialBoard
         Team = firstTeam
         Stage = ChooseCard
@@ -95,8 +97,20 @@ module State =
                 |> Seq.head
             let legalMoves = Chess.getLegalMoves state.Board existingPP
             if Seq.contains newPosition legalMoves then
+                let capturedPiece = List.tryExactlyOne [
+                    for pp in state.Board do
+                        if pp.Position = newPosition && pp.Piece <> movementStage.Piece then
+                            yield pp.Piece
+                ]
+
                 {
                     state with
+                        Points = [
+                            if movementStage.Piece.Suit <> Spade && capturedPiece <> None then
+                                yield (state.Team, movementStage.Piece.Suit)
+
+                            yield! state.Points
+                        ]
                         Board = Set.ofList [
                             for pp in state.Board do
                                 if pp.Position <> newPosition && pp.Piece <> movementStage.Piece then
@@ -118,11 +132,7 @@ module State =
 
                                     existingPP.Type
                                 ]
-                                CapturedPiece = List.tryExactlyOne [
-                                    for pp in state.Board do
-                                        if pp.Position = newPosition && pp.Piece <> movementStage.Piece then
-                                            yield pp.Piece
-                                ]
+                                CapturedPiece = capturedPiece
                             }
                 }
             else
@@ -170,6 +180,7 @@ type InteractiveButton = {
     Enabled: bool
     NextState: State Lazy
     Color: Color option
+    Auto: bool
 } with
     member this.ForeColor =
         match this.Color with
@@ -183,6 +194,15 @@ module Interactive =
         | Club -> "♣"
         | Diamond -> "♦"
         | Spade -> "♠"
+
+    let DescribeScore team state =
+        seq {
+            for pointTeam, suit in state.Points do
+                if team = pointTeam then
+                    DescribeSuit suit
+        }
+        |> Seq.sortBy id
+        |> String.concat " "
 
     let GetColor suit =
         match suit with
@@ -219,6 +239,7 @@ module Interactive =
                             Enabled = true
                             NextState = lazy (state |> State.PromotePiece pc)
                             Color = None
+                            Auto = true
                         }
                 | _ -> ()
             while true do
@@ -227,6 +248,7 @@ module Interactive =
                     Enabled = false
                     NextState = lazy state
                     Color = None
+                    Auto = false
                 }
         }
         |> Seq.truncate 2
@@ -247,6 +269,7 @@ module Interactive =
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     Color = Some (GetColor card.Suit)
+                    Auto = false
                 }
             for _ in state.Deck do
                 {
@@ -254,6 +277,7 @@ module Interactive =
                     Enabled = step
                     NextState = lazy (state |> State.Draw team)
                     Color = None
+                    Auto = true
                 }
             while true do
                 {
@@ -261,6 +285,7 @@ module Interactive =
                     Enabled = false
                     NextState = lazy state
                     Color = None
+                    Auto = false
                 }
         }
         |> Seq.truncate 3
@@ -343,6 +368,7 @@ module Interactive =
                     && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
                 NextState = lazy (state |> State.PlacePiece pos capturedPiece)
                 Color = Some (GetColor capturedPiece.Suit)
+                Auto = false
             }
         | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
             // Determining which piece to move after playing a card
@@ -351,6 +377,7 @@ module Interactive =
                 Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
                 NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
                 Color = Some (GetColor pieceHere.Piece.Suit)
+                Auto = true
             }
         | MovePiece movementStage, _ ->
             // Determine where to move the piece to
@@ -368,6 +395,7 @@ module Interactive =
                 Color =
                     pieceAtThisPosition
                     |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+                Auto = false
             }
         | _ ->
             // Board inactive
@@ -381,6 +409,7 @@ module Interactive =
                 Color =
                     pieceAtThisPosition
                     |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+                Auto = false
             }
 
     let GetBoardButtons state = [
