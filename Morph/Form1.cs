@@ -12,15 +12,22 @@ namespace Morph
 
         private void ApplyState(State state)
         {
-            var states = Interactive.GetAllButtons(state)
-                .Select(b => b.Enabled ? b.NextState.Value : state)
-                .Distinct()
-                .Except(new[] { state });
+            var buttons = Interactive.GetAllButtons(state)
+                .Where(b => b.Enabled);
 
-            if (states.Count() == 1)
-                ApplyState(states.Single());
-            else
-                Manager.State = state;
+            if (buttons.All(b => b.Auto))
+            {
+                var states = buttons
+                    .Select(b => b.NextState.Value)
+                    .Distinct();
+                if (states.Count() == 1)
+                {
+                    ApplyState(states.Single());
+                    return;
+                }
+            }
+
+            Manager.State = state;
         }
 
         private void PerformClick(InteractiveButton interactiveButton)

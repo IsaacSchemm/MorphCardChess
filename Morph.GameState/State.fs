@@ -53,8 +53,8 @@ module State =
     }
 
     let Draw team state =
-        match  state.Deck, state.LightHand.Length with
-        | top :: rest, len when len < 3 && team = state.Team ->
+        match state.Deck, state.LightHand.Length with
+        | top::rest, len when len < 3 && team = state.Team ->
             {
                 state with
                     Deck = rest
@@ -197,9 +197,22 @@ module Interactive =
 
     let DescribeScore team state =
         seq {
-            for pointTeam, suit in state.Points do
-                if team = pointTeam then
-                    DescribeSuit suit
+            let myPoints = [
+                for pointTeam, suit in state.Points do
+                    if team = pointTeam then
+                        suit
+            ]
+
+            for suit in myPoints do
+                DescribeSuit suit
+
+            let hasAll =
+                myPoints |> List.contains Heart
+                && myPoints |> List.contains Club
+                && myPoints |> List.contains Diamond
+
+            if hasAll then
+                sprintf "(%d)" (List.length myPoints)
         }
         |> Seq.sortBy id
         |> String.concat " "

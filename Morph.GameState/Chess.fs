@@ -27,8 +27,6 @@ type PiecePosition = {
     Type: Type
 }
 
-type Boagrd = Piece Set
-
 type Direction = Up | Down | Left | Right
 
 module Chess =
