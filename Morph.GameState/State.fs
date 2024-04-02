@@ -236,10 +236,10 @@ module Interactive =
 
     let DescribeType t =
         match t with
-        | Rook -> "♜ Rook"
-        | Bishop -> "♝ Bishop"
-        | Knight -> "♞ Knight"
-        | Wazir -> "Wazir"
+        | Rook -> "♜ Cat"
+        | Bishop -> "♝ Snake"
+        | Knight -> "♞ Bee"
+        | Wazir -> "Human"
 
     let GetPromotionButtons team state =
         seq {
