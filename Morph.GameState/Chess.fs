@@ -89,7 +89,7 @@ module Chess =
                         | Some otherPiece ->
                             if otherPiece.Team <> piecePosition.Piece.Team then
                                 yield pos
-                                quit <- true
+                            quit <- true
         | Bishop ->
             for (x, y) in [(1, 1); (-1, -1); (1, -1); (-1, 1)] do
                 let mutable pos = piecePosition.Position
@@ -105,7 +105,7 @@ module Chess =
                         | Some otherPiece ->
                             if otherPiece.Team <> piecePosition.Piece.Team then
                                 yield pos
-                                quit <- true
+                            quit <- true
         | Knight ->
             for (x, y) in [
                 (1, 2)

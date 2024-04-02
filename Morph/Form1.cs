@@ -10,11 +10,25 @@ namespace Morph
 
         private readonly GameStateManager Manager = new();
 
+        private void ApplyState(State state)
+        {
+            var states = Interactive.GetAllButtons(state)
+                .Select(b => b.Enabled ? b.NextState.Value : state)
+                .Distinct()
+                .Except(new[] { state });
+
+            if (states.Count() == 1)
+                ApplyState(states.Single());
+            else
+                Manager.State = state;
+        }
+
         private void PerformClick(InteractiveButton interactiveButton)
         {
-            // TODO: implement auto check up here
-            if (interactiveButton.Enabled)
-                Manager.State = interactiveButton.NextState.Value;
+            if (!interactiveButton.Enabled)
+                return;
+
+            ApplyState(interactiveButton.NextState.Value);
         }
 
         public Form1()
@@ -77,7 +91,7 @@ namespace Morph
             Manager = new GameStateManager();
             Manager.StateChanged += Manager_StateChanged;
 
-            Manager.State = StateModule.CreateStartingState(Team.Dark);
+            ApplyState(StateModule.CreateStartingState(Team.Dark));
         }
 
         private void Manager_StateChanged(object? sender, EventArgs e)
@@ -88,29 +102,6 @@ namespace Morph
                 Rows = Interactive.GetBoardButtons(Manager.State),
                 BottomCards = Interactive.GetHandAndPromotionButtons(Team.Dark, Manager.State),
             };
-
-            IEnumerable<InteractiveButton> getAllButtons()
-            {
-                foreach (var c in state.TopCards)
-                    yield return c;
-                foreach (var r in state.Rows)
-                    foreach (var c in r)
-                        yield return c;
-                foreach (var c in state.BottomCards)
-                    yield return c;
-            }
-
-            var buttons = getAllButtons().Where(x => x.Enabled);
-            if (buttons.All(b => b.Auto))
-            {
-                var states = getAllButtons().Where(x => x.Enabled).Select(x => x.NextState.Value).Distinct();
-
-                if (states.Count() == 1 && Manager.NextState == null)
-                {
-                    Manager.State = states.Single();
-                    return;
-                }
-            }
 
             for (int x = 0; x < state.TopCards.Length; x++)
             {

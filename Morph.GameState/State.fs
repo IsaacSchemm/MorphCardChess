@@ -418,3 +418,10 @@ module Interactive =
                 GetBoardButton state rank file
         ]
     ]
+
+    let GetAllButtons state = [
+        yield! GetHandAndPromotionButtons Light state
+        for row in GetBoardButtons state do
+            yield! row
+        yield! GetHandAndPromotionButtons Dark state
+    ]
