@@ -33,6 +33,32 @@ type State = {
 }
 
 module State =
+    let IsPass team state =
+        state.Points |> Seq.contains (team, Heart)
+        && state.Points |> Seq.contains (team, Club)
+        && state.Points |> Seq.contains (team, Diamond)
+
+    let GetTotalPoints team state =
+        if IsPass team state
+        then state.Points |> Seq.where (fun x -> fst x = team) |> Seq.length
+        else 0
+
+    let Describe state =
+        match state.Stage, state.DarkHand, state.LightHand, state.Team with
+        | ChooseCard, [], [], _ ->
+            match GetTotalPoints Dark state, GetTotalPoints Light state with
+            | 0, 0 -> "No winner (neither team got all 3 captures)"
+            | _, 0 -> "Player 1 wins by getting all 3 captures"
+            | 0, _ -> "Player 2 wins by getting all 3 captures"
+            | d, l when d > l -> $"Player 1 wins with {d} points"
+            | d, l when d < l -> $"Player 2 wins with {l} points"
+            | d, l when d = l -> $"Tie game with {l} points"
+            | _ -> "Could not determine winner"
+        | _, _, _, Dark ->
+            $"Player 1's turn ({List.length state.Deck} cards left in deck)"
+        | _, _, _, Light ->
+            $"Player 2's turn ({List.length state.Deck} cards left in deck)"
+
     let private random = new System.Random()
 
     let CreateStartingState firstTeam = {

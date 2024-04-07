@@ -49,7 +49,7 @@ namespace Morph
                 {
                     Dock = DockStyle.Fill,
                     Text = $"T {y}",
-                    Font = new Font(SystemFonts.DefaultFont.FontFamily, 12f)
+                    Font = new Font(SystemFonts.DefaultFont.FontFamily, 16f)
                 };
                 button.Click += (_, __) =>
                     PerformClick(Interactive.GetHandAndPromotionButtons(Team.Light, Manager.State)[y]);
@@ -84,7 +84,7 @@ namespace Morph
                 {
                     Dock = DockStyle.Fill,
                     Text = $"B {y}",
-                    Font = new Font(SystemFonts.DefaultFont.FontFamily, 12f)
+                    Font = new Font(SystemFonts.DefaultFont.FontFamily, 16f)
                 };
                 button.Click += (_, __) =>
                     PerformClick(Interactive.GetHandAndPromotionButtons(Team.Dark, Manager.State)[y]);
@@ -140,8 +140,14 @@ namespace Morph
                 _bottomCards[x].ForeColor = state.BottomCards[x].ForeColor;
             }
 
-            txtLightScore.Text = Interactive.DescribeScore(Team.Light, Manager.State);
-            txtDarkScore.Text = Interactive.DescribeScore(Team.Dark, Manager.State);
+            scoreControlLight.Points = Manager.State.Points
+                .Where(x => x.Item1 == Team.Light)
+                .Select(x => x.Item2);
+            scoreControlDark.Points = Manager.State.Points
+                .Where(x => x.Item1 == Team.Dark)
+                .Select(x => x.Item2);
+
+            toolStripStatusLabel1.Text = StateModule.Describe(Manager.State);
 
             btnUndo.Enabled = Manager.PreviousState != null;
             btnRedo.Enabled = Manager.NextState != null;
