@@ -43,9 +43,16 @@ namespace Morph
             button.Text = (interactiveButton.Label as GameState.Label.Text)?.text ?? "";
             button.Enabled = interactiveButton.Enabled;
             button.ForeColor = interactiveButton.ForeColor;
-            button.BackgroundImage = interactiveButton.Label is GameState.Label.Image { path: string path }
-                ? Image.FromFile(path)
-                : null;
+            try
+            {
+                button.BackgroundImage = interactiveButton.Label is GameState.Label.Image { path: string path }
+                    ? Image.FromFile(path)
+                    : null;
+            }
+            catch (FileNotFoundException)
+            {
+                button.BackgroundImage = null;
+            }
             button.BackgroundImageLayout = ImageLayout.Zoom;
         }
 
