@@ -27,6 +27,12 @@ namespace Morph
             }
         }
 
+        public void ClearUndo()
+        {
+            if (states.Count != 0)
+                states = [states.Last()];
+        }
+
         public State? PreviousState =>
             index > 0
             ? states[index - 1]

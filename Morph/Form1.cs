@@ -152,5 +152,24 @@ namespace Morph
             btnUndo.Enabled = Manager.PreviousState != null;
             btnRedo.Enabled = Manager.NextState != null;
         }
+
+        private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ApplyState(StateModule.CreateStartingState(Team.Dark));
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(this, @"Morph Card Chess v1.0
+https://lakora.us/morph-card-chess/
+
+© 2024 Isaac Schemm
+GNU APGL v3 or later");
+        }
     }
 }
