@@ -27,10 +27,10 @@ namespace Morph
             }
         }
 
-        public void ClearUndo()
+        public void Clear()
         {
-            if (states.Count != 0)
-                states = [states.Last()];
+            index = -1;
+            states = [];
         }
 
         public State? PreviousState =>

@@ -109,7 +109,7 @@ namespace Morph
             Manager = new GameStateManager();
             Manager.StateChanged += Manager_StateChanged;
 
-            ApplyState(StateModule.CreateStartingState(Team.Dark));
+            ApplyState(StateModule.CreateStartingState(DeckType.Euchre));
         }
 
         private void Manager_StateChanged(object? sender, EventArgs e)
@@ -152,11 +152,6 @@ namespace Morph
             btnRedo.Enabled = Manager.NextState != null;
         }
 
-        private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ApplyState(StateModule.CreateStartingState(Team.Dark));
-        }
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
@@ -169,6 +164,24 @@ https://lakora.us/morph-card-chess/
 
 © 2024 Isaac Schemm
 GNU APGL v3 or later");
+        }
+
+        private void euchreDeckToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Manager.Clear();
+            ApplyState(StateModule.CreateStartingState(DeckType.Euchre));
+        }
+
+        private void pinochleDeckToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Manager.Clear();
+            ApplyState(StateModule.CreateStartingState(DeckType.Pinochle));
+        }
+
+        private void pokerDeckToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Manager.Clear();
+            ApplyState(StateModule.CreateStartingState(DeckType.Poker));
         }
     }
 }

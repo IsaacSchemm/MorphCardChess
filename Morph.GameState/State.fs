@@ -2,6 +2,8 @@
 
 open System.Drawing
 
+type DeckType = Euchre | Pinochle | Poker
+
 type Card = { Suit: Suit; Rank: int }
 
 type MovementStage = {
@@ -61,12 +63,16 @@ module State =
 
     let private random = new System.Random()
 
-    let CreateStartingState firstTeam = {
+    let CreateStartingState deckType = {
         Deck =
             seq {
-                for suit in [Heart; Club; Diamond; Spade] do
-                    for rank in [9..13] do
-                        { Suit = suit; Rank = rank }
+                let ranks = if deckType = Poker then [1..13] else [9..13]
+                let duplicates = if deckType = Pinochle then 2 else 1
+
+                for _ in Seq.replicate duplicates () do
+                    for suit in [Heart; Club; Diamond; Spade] do
+                        for rank in ranks do
+                            { Suit = suit; Rank = rank }
             }
             |> Seq.sortBy (fun _ -> random.Next())
             |> Seq.toList
@@ -74,7 +80,7 @@ module State =
         LightHand = []
         Points = []
         Board = Chess.initialBoard
-        Team = firstTeam
+        Team = Dark
         Stage = ChooseCard
     }
 
@@ -259,6 +265,7 @@ module Interactive =
         | 13 -> "K"
         | 12 -> "Q"
         | 11 -> "J"
+        | 1 -> "A"
         | r -> string r
     ]
 

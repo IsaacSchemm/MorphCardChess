@@ -45,6 +45,9 @@
             exitToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
+            euchreDeckToolStripMenuItem = new ToolStripMenuItem();
+            pinochleDeckToolStripMenuItem = new ToolStripMenuItem();
+            pokerDeckToolStripMenuItem = new ToolStripMenuItem();
             panel1.SuspendLayout();
             statusStrip1.SuspendLayout();
             menuStrip1.SuspendLayout();
@@ -192,10 +195,10 @@
             // 
             // newGameToolStripMenuItem
             // 
+            newGameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { euchreDeckToolStripMenuItem, pinochleDeckToolStripMenuItem, pokerDeckToolStripMenuItem });
             newGameToolStripMenuItem.Name = "newGameToolStripMenuItem";
             newGameToolStripMenuItem.Size = new Size(180, 22);
             newGameToolStripMenuItem.Text = "&New Game";
-            newGameToolStripMenuItem.Click += newGameToolStripMenuItem_Click;
             // 
             // toolStripMenuItem2
             // 
@@ -222,6 +225,27 @@
             aboutToolStripMenuItem.Size = new Size(107, 22);
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
+            // 
+            // euchreDeckToolStripMenuItem
+            // 
+            euchreDeckToolStripMenuItem.Name = "euchreDeckToolStripMenuItem";
+            euchreDeckToolStripMenuItem.Size = new Size(180, 22);
+            euchreDeckToolStripMenuItem.Text = "&Euchre deck";
+            euchreDeckToolStripMenuItem.Click += euchreDeckToolStripMenuItem_Click;
+            // 
+            // pinochleDeckToolStripMenuItem
+            // 
+            pinochleDeckToolStripMenuItem.Name = "pinochleDeckToolStripMenuItem";
+            pinochleDeckToolStripMenuItem.Size = new Size(180, 22);
+            pinochleDeckToolStripMenuItem.Text = "&Pinochle deck";
+            pinochleDeckToolStripMenuItem.Click += pinochleDeckToolStripMenuItem_Click;
+            // 
+            // pokerDeckToolStripMenuItem
+            // 
+            pokerDeckToolStripMenuItem.Name = "pokerDeckToolStripMenuItem";
+            pokerDeckToolStripMenuItem.Size = new Size(180, 22);
+            pokerDeckToolStripMenuItem.Text = "Po&ker deck";
+            pokerDeckToolStripMenuItem.Click += pokerDeckToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -264,5 +288,8 @@
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripMenuItem euchreDeckToolStripMenuItem;
+        private ToolStripMenuItem pinochleDeckToolStripMenuItem;
+        private ToolStripMenuItem pokerDeckToolStripMenuItem;
     }
 }
