@@ -38,6 +38,17 @@ namespace Morph
             ApplyState(interactiveButton.NextState.Value);
         }
 
+        private void UpdateButton(Button button, InteractiveButton interactiveButton)
+        {
+            button.Text = (interactiveButton.Label as GameState.Label.Text)?.text ?? "";
+            button.Enabled = interactiveButton.Enabled;
+            button.ForeColor = interactiveButton.ForeColor;
+            button.BackgroundImage = interactiveButton.Label is GameState.Label.Image { path: string path }
+                ? Image.FromFile(path)
+                : null;
+            button.BackgroundImageLayout = ImageLayout.Zoom;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -112,32 +123,20 @@ namespace Morph
 
             for (int x = 0; x < state.TopCards.Length; x++)
             {
-                _topCards[x].Text = state.TopCards[x].Label;
-                _topCards[x].Enabled = state.TopCards[x].Enabled;
-                _topCards[x].ForeColor = state.TopCards[x].ForeColor;
+                UpdateButton(_topCards[x], state.TopCards[x]);
             }
 
             for (int x = 0; x < state.Rows.Length; x++)
             {
                 for (int y = 0; y < state.Rows[x].Length; y++)
                 {
-                    _cells[x][y].Text = state.Rows[x][y].Label.EndsWith(".png")
-                        ? ""
-                        : state.Rows[x][y].Label;
-                    _cells[x][y].Enabled = state.Rows[x][y].Enabled;
-                    _cells[x][y].ForeColor = state.Rows[x][y].ForeColor;
-                    _cells[x][y].BackgroundImage = state.Rows[x][y].Label.EndsWith(".png")
-                        ? Image.FromFile(state.Rows[x][y].Label)
-                        : null;
-                    _cells[x][y].BackgroundImageLayout = ImageLayout.Zoom;
+                    UpdateButton(_cells[x][y], state.Rows[x][y]);
                 }
             }
 
             for (int x = 0; x < state.BottomCards.Length; x++)
             {
-                _bottomCards[x].Text = state.BottomCards[x].Label;
-                _bottomCards[x].Enabled = state.BottomCards[x].Enabled;
-                _bottomCards[x].ForeColor = state.BottomCards[x].ForeColor;
+                UpdateButton(_bottomCards[x], state.BottomCards[x]);
             }
 
             scoreControlLight.Points = Manager.State.Points

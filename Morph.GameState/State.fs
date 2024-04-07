@@ -201,8 +201,10 @@ module State =
             Stage = ChooseCard
     }
 
+type Label = Text of text: string | Image of path: string
+
 type InteractiveButton = {
-    Label: string
+    Label: Label
     Enabled: bool
     NextState: State Lazy
     Color: Color option
@@ -274,7 +276,7 @@ module Interactive =
                 | PromotePiece promotionStage ->
                     for pc in promotionStage.PromotionOptions do
                         {
-                            Label = DescribeType pc
+                            Label = Text (DescribeType pc)
                             Enabled = true
                             NextState = lazy (state |> State.PromotePiece pc)
                             Color = None
@@ -283,7 +285,7 @@ module Interactive =
                 | _ -> ()
             while true do
                 {
-                    Label = ""
+                    Label = Text ""
                     Enabled = false
                     NextState = lazy state
                     Color = None
@@ -304,7 +306,7 @@ module Interactive =
                 | Dark -> state.DarkHand
             for card in hand do
                 {
-                    Label = DescribeCard card
+                    Label = Text (DescribeCard card)
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     Color = Some (GetColor card.Suit)
@@ -312,7 +314,7 @@ module Interactive =
                 }
             for _ in state.Deck do
                 {
-                    Label = "Draw"
+                    Label = Text "Draw"
                     Enabled = step
                     NextState = lazy (state |> State.Draw team)
                     Color = None
@@ -320,7 +322,7 @@ module Interactive =
                 }
             while true do
                 {
-                    Label = ""
+                    Label = Text ""
                     Enabled = false
                     NextState = lazy state
                     Color = None
@@ -399,8 +401,9 @@ module Interactive =
             {
                 Label =
                     match pieceAtThisPosition with
-                    | Some px -> DescribePiecePosition px
-                    | _ -> DescribePosition pos
+                    | Some px -> Image (DescribePiecePosition px)
+                    | _ when inBack -> Text (DescribePosition pos)
+                    | _ -> Text ""
                 Enabled =
                     inBack
                     && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
@@ -412,7 +415,7 @@ module Interactive =
         | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
             // Determining which piece to move after playing a card
             {
-                Label = DescribePiecePosition pieceHere
+                Label = Image (DescribePiecePosition pieceHere)
                 Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
                 NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
                 Color = Some (GetColor pieceHere.Piece.Suit)
@@ -423,8 +426,8 @@ module Interactive =
             {
                 Label =
                     match pieceAtThisPosition with
-                    | Some piecePos -> DescribePiecePosition piecePos
-                    | None -> ""
+                    | Some piecePos -> Image (DescribePiecePosition piecePos)
+                    | None -> Text ""
                 Enabled =
                     state.Board
                     |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
@@ -441,8 +444,8 @@ module Interactive =
             {
                 Label =
                     match pieceAtThisPosition with
-                    | Some piecePos -> DescribePiecePosition piecePos
-                    | None -> ""
+                    | Some piecePos -> Image (DescribePiecePosition piecePos)
+                    | None -> Text ""
                 Enabled = false
                 NextState = lazy state
                 Color =
