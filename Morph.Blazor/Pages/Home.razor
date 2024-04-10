@@ -1,7 +1,235 @@
 ﻿@page "/"
+@using Morph.GameState
+@using Morph.GameStateManagement
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Morph Card Chess</PageTitle>
 
-<h1>Hello, world!</h1>
+<style type="text/css">
+    body {
+        text-align: center;
+    }
 
-Welcome to your new app.
+    .score {
+        font-family: monospace;
+        font-size: 24px;
+        background-color: white;
+        color: lightgray;
+    }
+
+        .score span.active {
+            color: black;
+        }
+
+        .score span.hearts.active {
+            color: red;
+        }
+
+        .score span.clubs.active {
+            color: green;
+        }
+
+        .score span.diamonds.active {
+            color: blue;
+        }
+
+    .hand button, .promotion button {
+        min-width: 160px;
+        min-height: 32px;
+        font-size: 16px;
+    }
+
+    #board {
+        display: inline-grid;
+        max-width: 512px;
+        max-height: 512px;
+        grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    }
+
+        #board img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+</style>
+
+@if (manager.State != null)
+{
+    <div class="score">
+        @{
+            {
+                var suits = manager.State.Points
+                .Where(p => p.Item1 == Team.Light)
+                .Where(p => !p.Item2.IsSpade)
+                .Select(p => p.Item2);
+
+                int hearts = suits.Count(x => x.IsHeart);
+                int clubs = suits.Count(x => x.IsClub);
+                int diamonds = suits.Count(x => x.IsDiamond);
+                int score = hearts > 0 && clubs > 0 && diamonds > 0
+                ? suits.Count()
+                : 0;
+
+                <span class="hearts @(hearts > 0 ? "active" : "")">
+                    ♥
+                    @hearts
+                </span>
+
+                <span class="clubs @(clubs > 0 ? "active" : "")">
+                    ♣
+                    @clubs
+                </span>
+
+                <span class="diamonds @(diamonds > 0 ? "active" : "")">
+                    ♦
+                    @diamonds
+                </span>
+
+                <span class="@(score > 0 ? "active" : "")">
+                    &nbsp;
+                    &nbsp;
+                    ☺
+                    @score
+                </span>
+            }
+        }
+    </div>
+
+    <hr />
+
+    <div class="hand">
+        @foreach (var cell in Interactive.GetHandButtons(Team.Light, manager.State))
+        {
+            <button @onclick=@(() => manager.State = cell.NextState.Value)
+                    disabled="@(!cell.Enabled)"
+                    style="color: rgb(@cell.ForeColor.R, @cell.ForeColor.G, @cell.ForeColor.B)">
+                @if (cell.Label is Label.Text text)
+                {
+                    @text.text
+                }
+            </button>
+        }
+    </div>
+
+    <div class="promotion">
+        @foreach (var cell in Interactive.GetPromotionButtons(Team.Light, manager.State))
+        {
+            <button @onclick=@(() => manager.State = cell.NextState.Value)
+                    disabled="@(!cell.Enabled)">
+                @if (cell.Label is Label.Text text)
+                {
+                    @text.text
+                }
+            </button>
+        }
+    </div>
+
+    <hr />
+
+    <div id="board">
+        @foreach (var row in Interactive.GetBoardButtons(manager.State))
+        {
+            foreach (var cell in row)
+            {
+                <button @onclick=@(() => manager.State = cell.NextState.Value)
+                        disabled="@(!cell.Enabled)">
+                    @if (cell.Label is Label.Image image)
+                    {
+                        <img src="@image.path" />
+                    }
+                    else if (cell.Label is Label.Text text)
+                    {
+                        @text.text
+                    }
+                </button>
+            }
+        }
+    </div>
+
+    <hr />
+
+    <div class="promotion">
+        @foreach (var cell in Interactive.GetPromotionButtons(Team.Dark, manager.State))
+        {
+            <button @onclick=@(() => manager.State = cell.NextState.Value)
+                    disabled="@(!cell.Enabled)">
+                @if (cell.Label is Label.Text text)
+                {
+                    @text.text
+                }
+            </button>
+        }
+    </div>
+
+    <div class="hand">
+        @foreach (var cell in Interactive.GetHandButtons(Team.Dark, manager.State))
+        {
+            <button @onclick=@(() => manager.State = cell.NextState.Value)
+                    disabled="@(!cell.Enabled)"
+                    style="color: rgb(@cell.ForeColor.R, @cell.ForeColor.G, @cell.ForeColor.B)">
+                @if (cell.Label is Label.Text text)
+                {
+                    @text.text
+                }
+            </button>
+        }
+    </div>
+
+    <hr />
+
+    <div class="score">
+        @{
+            {
+                var suits = manager.State.Points
+                .Where(p => p.Item1 == Team.Dark)
+                .Where(p => !p.Item2.IsSpade)
+                .Select(p => p.Item2);
+
+                int hearts = suits.Count(x => x.IsHeart);
+                int clubs = suits.Count(x => x.IsClub);
+                int diamonds = suits.Count(x => x.IsDiamond);
+                int score = hearts > 0 && clubs > 0 && diamonds > 0
+                ? suits.Count()
+                : 0;
+
+                <span class="hearts @(hearts > 0 ? "active" : "")">
+                    ♥
+                    @hearts
+                </span>
+
+                <span class="clubs @(clubs > 0 ? "active" : "")">
+                    ♣
+                    @clubs
+                </span>
+
+                <span class="diamonds @(diamonds > 0 ? "active" : "")">
+                    ♦
+                    @diamonds
+                </span>
+
+                <span class="@(score > 0 ? "active" : "")">
+                    &nbsp;
+                    &nbsp;
+                    ☺
+                    @score
+                </span>
+            }
+        }
+    </div>
+
+    <hr />
+
+    <div>
+        @StateModule.Describe(manager.State)
+    </div>
+}
+
+@code {
+    GameStateManager manager = new GameStateManager();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        manager.State = StateModule.CreateStartingState(DeckType.Euchre);
+    }
+}
