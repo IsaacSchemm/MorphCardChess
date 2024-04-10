@@ -259,7 +259,7 @@
             Controls.Add(panel1);
             MainMenuStrip = menuStrip1;
             Name = "Form1";
-            Text = "Form1";
+            Text = "Morph Card Chess";
             panel1.ResumeLayout(false);
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();

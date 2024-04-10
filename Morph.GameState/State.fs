@@ -12,6 +12,7 @@ type MovementStage = {
 }
 
 type PromotionStage = {
+    Card: Card
     Piece: Piece
     PromotionOptions: Type list
     CapturedPiece: Piece option
@@ -35,6 +36,9 @@ type State = {
 }
 
 module State =
+    let GetPointsBySuit team suit state =
+        state.Points |> Seq.where (fun x -> x = (team, suit)) |> Seq.length
+
     let IsPass team state =
         state.Points |> Seq.contains (team, Heart)
         && state.Points |> Seq.contains (team, Club)
@@ -45,21 +49,52 @@ module State =
         then state.Points |> Seq.where (fun x -> fst x = team) |> Seq.length
         else 0
 
+    let GetUnplayedCards state = seq {
+        yield! state.LightHand
+        yield! state.DarkHand
+        yield! state.Deck
+    }
+
+    let GetTeamName team =
+        match team with
+        | Dark -> "Player 1"
+        | Light -> "Player 2"
+
+    let GetPromotionOption rank =
+        match rank with
+        | 13 -> Rook
+        | 12 -> Bishop
+        | 11 -> Knight
+        | _ -> Wazir
+
+    let DescribeType pieceType =
+        match pieceType with
+        | Rook -> "♜ Cat"
+        | Bishop -> "♝ Snake"
+        | Knight -> "♞ Bee"
+        | Wazir -> "Human"
+
     let Describe state =
-        match state.Stage, state.DarkHand, state.LightHand, state.Team with
-        | ChooseCard, [], [], _ ->
+        match state.Stage with
+        | ReplaceCapturedPiece piece ->
+            $"""{GetTeamName state.Team}: choose where to place your captured {piece.Suit} piece back on the board (as a {DescribeType Wazir})"""
+        | ChooseCard when Seq.isEmpty (GetUnplayedCards state) ->
             match GetTotalPoints Dark state, GetTotalPoints Light state with
             | 0, 0 -> "No winner (neither team got all 3 captures)"
-            | _, 0 -> "Player 1 wins by getting all 3 captures"
-            | 0, _ -> "Player 2 wins by getting all 3 captures"
-            | d, l when d > l -> $"Player 1 wins with {d} points"
-            | d, l when d < l -> $"Player 2 wins with {l} points"
             | d, l when d = l -> $"Tie game with {l} points"
+            | _, 0 -> $"{GetTeamName Dark} wins by getting all 3 captures"
+            | 0, _ -> $"{GetTeamName Light} wins by getting all 3 captures"
+            | d, l when d > l -> $"{GetTeamName Dark} wins with {d} points"
+            | d, l when d < l -> $"{GetTeamName Light} wins with {l} points"
             | _ -> "Could not determine winner"
-        | _, _, _, Dark ->
-            $"Player 1's turn ({List.length state.Deck} cards left in deck)"
-        | _, _, _, Light ->
-            $"Player 2's turn ({List.length state.Deck} cards left in deck)"
+        | ChooseCard ->
+            $"{GetTeamName state.Team}: draw or play a card ({List.length state.Deck} cards left in deck)"
+        | ChoosePiece card ->
+            $"{GetTeamName state.Team}: select a piece to move with the {card.Suit} card"
+        | MovePiece stage ->
+            $"{GetTeamName state.Team}: select a square to move your {stage.Piece.Suit} piece to"
+        | PromotePiece stage ->
+            $"""{GetTeamName state.Team}: choose whether you want to turn your {stage.Piece.Suit} piece into a {stage.Card.Rank |> GetPromotionOption |> DescribeType} by virtue of playing a {stage.Card.Rank}"""
 
     let private random = new System.Random()
 
@@ -154,14 +189,10 @@ module State =
                         ]
                         Stage =
                             PromotePiece {
+                                Card = movementStage.Card
                                 Piece = movementStage.Piece
                                 PromotionOptions = [
-                                    match movementStage.Card.Rank with
-                                    | 13 -> Rook
-                                    | 12 -> Bishop
-                                    | 11 -> Knight
-                                    | _ -> Wazir
-
+                                    GetPromotionOption movementStage.Card.Rank
                                     existingPP.Type
                                 ]
                                 CapturedPiece = capturedPiece
@@ -269,13 +300,6 @@ module Interactive =
         | r -> string r
     ]
 
-    let DescribeType t =
-        match t with
-        | Rook -> "♜ Cat"
-        | Bishop -> "♝ Snake"
-        | Knight -> "♞ Bee"
-        | Wazir -> "Human"
-
     let GetPromotionButtons team state =
         seq {
             if state.Team = team then
@@ -283,7 +307,7 @@ module Interactive =
                 | PromotePiece promotionStage ->
                     for pc in promotionStage.PromotionOptions do
                         {
-                            Label = Text (DescribeType pc)
+                            Label = Text (State.DescribeType pc)
                             Enabled = true
                             NextState = lazy (state |> State.PromotePiece pc)
                             Color = None

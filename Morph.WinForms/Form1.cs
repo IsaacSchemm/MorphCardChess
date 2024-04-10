@@ -147,12 +147,8 @@ namespace Morph.WinForms
                 UpdateButton(_bottomCards[x], state.BottomCards[x]);
             }
 
-            scoreControlLight.Points = Manager.State.Points
-                .Where(x => x.Item1 == Team.Light)
-                .Select(x => x.Item2);
-            scoreControlDark.Points = Manager.State.Points
-                .Where(x => x.Item1 == Team.Dark)
-                .Select(x => x.Item2);
+            scoreControlLight.ApplyState(Manager.State, Team.Light);
+            scoreControlDark.ApplyState(Manager.State, Team.Dark);
 
             toolStripStatusLabel1.Text = StateModule.Describe(Manager.State);
 

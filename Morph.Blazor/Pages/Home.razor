@@ -32,10 +32,11 @@
             color: blue;
         }
 
-    .hand button, .promotion button {
+    .hand button {
         min-width: 160px;
         min-height: 32px;
         font-size: 16px;
+        vertical-align: middle;
     }
 
     #board {
@@ -58,17 +59,10 @@
     <div class="score">
         @{
             {
-                var suits = manager.State.Points
-                .Where(p => p.Item1 == Team.Light)
-                .Where(p => !p.Item2.IsSpade)
-                .Select(p => p.Item2);
-
-                int hearts = suits.Count(x => x.IsHeart);
-                int clubs = suits.Count(x => x.IsClub);
-                int diamonds = suits.Count(x => x.IsDiamond);
-                int score = hearts > 0 && clubs > 0 && diamonds > 0
-                ? suits.Count()
-                : 0;
+                int hearts = StateModule.GetPointsBySuit(Team.Light, Suit.Heart, manager.State);
+                int clubs = StateModule.GetPointsBySuit(Team.Light, Suit.Club, manager.State);
+                int diamonds = StateModule.GetPointsBySuit(Team.Light, Suit.Diamond, manager.State);
+                int score = StateModule.GetTotalPoints(Team.Light, manager.State);
 
                 <span class="hearts @(hearts > 0 ? "active" : "")">
                     ♥
@@ -111,7 +105,7 @@
         }
     </div>
 
-    <div class="promotion">
+    <div class="hand">
         @foreach (var cell in Interactive.GetPromotionButtons(Team.Light, manager.State))
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
@@ -148,7 +142,7 @@
 
     <hr />
 
-    <div class="promotion">
+    <div class="hand">
         @foreach (var cell in Interactive.GetPromotionButtons(Team.Dark, manager.State))
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
@@ -180,17 +174,10 @@
     <div class="score">
         @{
             {
-                var suits = manager.State.Points
-                .Where(p => p.Item1 == Team.Dark)
-                .Where(p => !p.Item2.IsSpade)
-                .Select(p => p.Item2);
-
-                int hearts = suits.Count(x => x.IsHeart);
-                int clubs = suits.Count(x => x.IsClub);
-                int diamonds = suits.Count(x => x.IsDiamond);
-                int score = hearts > 0 && clubs > 0 && diamonds > 0
-                ? suits.Count()
-                : 0;
+                int hearts = StateModule.GetPointsBySuit(Team.Light, Suit.Heart, manager.State);
+                int clubs = StateModule.GetPointsBySuit(Team.Light, Suit.Club, manager.State);
+                int diamonds = StateModule.GetPointsBySuit(Team.Light, Suit.Diamond, manager.State);
+                int score = StateModule.GetTotalPoints(Team.Light, manager.State);
 
                 <span class="hearts @(hearts > 0 ? "active" : "")">
                     ♥
@@ -215,6 +202,19 @@
                 </span>
             }
         }
+    </div>
+
+    <hr />
+
+    <div class="hand">
+        <button @onclick=@(() => manager.State = manager.PreviousState ?? manager.State)
+                disabled="@(manager.PreviousState == null)">
+            Undo
+        </button>
+        <button @onclick=@(() => manager.State = manager.NextState ?? manager.State)
+                disabled="@(manager.NextState == null)">
+            Redo
+        </button>
     </div>
 
     <hr />

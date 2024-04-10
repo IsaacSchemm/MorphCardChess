@@ -22,27 +22,22 @@ namespace Morph.WinForms
             }
         }
 
-        public IEnumerable<Suit> Points
+        public void ApplyState(State state, Team team)
         {
-            set
-            {
-                var hearts = value.Where(x => x.IsHeart);
-                var clubs = value.Where(x => x.IsClub);
-                var diamonds = value.Where(x => x.IsDiamond);
+            int hearts = StateModule.GetPointsBySuit(team, Suit.Heart, state);
+            int clubs = StateModule.GetPointsBySuit(team, Suit.Club, state);
+            int diamonds = StateModule.GetPointsBySuit(team, Suit.Diamond, state);
 
-                lblHearts.Text = $"{hearts.Count()}";
-                chkDiamonds.Checked = diamonds.Any();
+            lblHearts.Text = $"{hearts}";
+            chkHearts.Checked = hearts > 0;
 
-                lblClubs.Text = $"{clubs.Count()}";
-                chkHearts.Checked = hearts.Any();
+            lblClubs.Text = $"{clubs}";
+            chkClubs.Checked = clubs > 0;
 
-                lblDiamonds.Text = $"{diamonds.Count()}";
-                chkClubs.Checked = clubs.Any();
+            lblDiamonds.Text = $"{diamonds}";
+            chkDiamonds.Checked = diamonds > 0;
 
-                lblScore.Text = hearts.Any() && clubs.Any() && diamonds.Any()
-                    ? $"{value.Count()}"
-                    : "";
-            }
+            lblScore.Text = $"{StateModule.GetTotalPoints(team, state)}";
         }
     }
 }
