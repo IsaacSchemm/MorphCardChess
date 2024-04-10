@@ -42,7 +42,9 @@ namespace Morph.WinForms
 
         private void UpdateButton(Button button, InteractiveButton interactiveButton)
         {
-            button.Text = (interactiveButton.Label as GameState.Label.Text)?.text ?? "";
+            button.Text = interactiveButton.ImagePaths.Length == 0
+                ? interactiveButton.Label ?? ""
+                : "";
             button.Enabled = interactiveButton.Enabled;
             button.ForeColor =
                 FSharpOption<Suit>.Some(Suit.Heart).Equals(interactiveButton.ButtonSuit) ? Color.Red
@@ -51,7 +53,7 @@ namespace Morph.WinForms
                 : Color.Black;
             try
             {
-                button.BackgroundImage = interactiveButton.Label is GameState.Label.Image { path: string path }
+                button.BackgroundImage = interactiveButton.ImagePaths.FirstOrDefault() is string path
                     ? Image.FromFile(path)
                     : null;
             }

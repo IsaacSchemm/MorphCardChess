@@ -241,7 +241,8 @@ module State =
 type Label = Text of text: string | Image of path: string
 
 type InteractiveButton = {
-    Label: Label
+    Label: string
+    ImagePaths: string list
     Enabled: bool
     NextState: State Lazy
     ButtonSuit: Suit option
@@ -303,7 +304,8 @@ module Interactive =
                 | PromotePiece promotionStage ->
                     for pc in promotionStage.PromotionOptions do
                         {
-                            Label = Text (State.DescribeType pc)
+                            Label = State.DescribeType pc
+                            ImagePaths = []
                             Enabled = true
                             NextState = lazy (state |> State.PromotePiece pc)
                             ButtonSuit = Some promotionStage.Piece.Suit
@@ -312,7 +314,8 @@ module Interactive =
                 | _ -> ()
             while true do
                 {
-                    Label = Text ""
+                    Label = ""
+                    ImagePaths = []
                     Enabled = false
                     NextState = lazy state
                     ButtonSuit = None
@@ -333,7 +336,8 @@ module Interactive =
                 | Dark -> state.DarkHand
             for card in hand do
                 {
-                    Label = Text (DescribeCard card)
+                    Label = DescribeCard card
+                    ImagePaths = []
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     ButtonSuit = Some card.Suit
@@ -341,7 +345,8 @@ module Interactive =
                 }
             for _ in state.Deck do
                 {
-                    Label = Text "Draw"
+                    Label = "Draw"
+                    ImagePaths = []
                     Enabled = step
                     NextState = lazy (state |> State.Draw team)
                     ButtonSuit = None
@@ -349,7 +354,8 @@ module Interactive =
                 }
             while true do
                 {
-                    Label = Text ""
+                    Label = ""
+                    ImagePaths = []
                     Enabled = false
                     NextState = lazy state
                     ButtonSuit = None
@@ -363,10 +369,7 @@ module Interactive =
         GetPromotionButtons team state @ GetHandButtons team state
 
     let DescribePiece (piece: Piece) = String.concat " " [
-        match piece.Team with
-        | Light -> "▼"
-        | Dark -> "▲"
-
+        State.GetTeamName piece.Team
         DescribeSuit piece.Suit
     ]
 
@@ -375,7 +378,7 @@ module Interactive =
         string pos.Rank
     ]
 
-    let DescribePiecePosition (pp: PiecePosition) = String.concat "" [
+    let GetImagePath (pp: PiecePosition) = String.concat "" [
         "../../../cards/"
 
         match pp.Piece.Suit with
@@ -405,81 +408,89 @@ module Interactive =
             state.Board
             |> Seq.where (fun pp -> pp.Position = pos)
             |> Seq.tryExactlyOne
-        match state.Stage, pieceAtThisPosition with
-        | ReplaceCapturedPiece capturedPiece, _ ->
-            // Determining where to place a captured piece
-            let inBack =
-                match state.Team, rank with
-                | Light, 8
-                | Light, 7
-                | Dark, 1
-                | Dark, 2 -> true
-                | _ -> false
-            let squaresIWouldAttack =
-                Chess.getLegalMoves state.Board { Piece = capturedPiece; Position = pos; Type = Wazir }
-            let opponentPositions =
-                state.Board
-                |> Seq.map (fun pp -> pp.Position)
-                |> Set.ofSeq
-            let pieceAtThisPosition =
-                state.Board
-                |> Seq.where (fun pp -> pp.Position = pos)
-                |> Seq.tryExactlyOne
-            {
-                Label =
-                    match pieceAtThisPosition with
-                    | Some px -> Image (DescribePiecePosition px)
-                    | _ when inBack -> Text (DescribePosition pos)
-                    | _ -> Text ""
-                Enabled =
-                    inBack
-                    && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
-                    && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
-                NextState = lazy (state |> State.PlacePiece pos capturedPiece)
-                ButtonSuit = Some capturedPiece.Suit
-                Auto = false
-            }
-        | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
-            // Determining which piece to move after playing a card
-            {
-                Label = Image (DescribePiecePosition pieceHere)
-                Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
-                NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
-                ButtonSuit = Some pieceHere.Piece.Suit
-                Auto = true
-            }
-        | MovePiece movementStage, _ ->
-            // Determine where to move the piece to
-            {
-                Label =
-                    match pieceAtThisPosition with
-                    | Some piecePos -> Image (DescribePiecePosition piecePos)
-                    | None -> Text ""
-                Enabled =
+        let properties =
+            match state.Stage, pieceAtThisPosition with
+            | ReplaceCapturedPiece capturedPiece, _ ->
+                // Determining where to place a captured piece
+                let inBack =
+                    match state.Team, rank with
+                    | Light, 8
+                    | Light, 7
+                    | Dark, 1
+                    | Dark, 2 -> true
+                    | _ -> false
+                let squaresIWouldAttack =
+                    Chess.getLegalMoves state.Board { Piece = capturedPiece; Position = pos; Type = Wazir }
+                let opponentPositions =
                     state.Board
-                    |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
-                    |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
-                    |> Seq.contains pos
-                NextState = lazy (state |> State.MovePiece pos)
-                ButtonSuit =
-                    pieceAtThisPosition
-                    |> Option.map (fun pp -> pp.Piece.Suit)
-                Auto = false
-            }
-        | _ ->
-            // Board inactive
-            {
-                Label =
+                    |> Seq.map (fun pp -> pp.Position)
+                    |> Set.ofSeq
+                {
+                    Label = ""
+                    ImagePaths = []
+                    Enabled =
+                        inBack
+                        && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
+                        && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
+                    NextState = lazy (state |> State.PlacePiece pos capturedPiece)
+                    ButtonSuit = Some capturedPiece.Suit
+                    Auto = false
+                }
+            | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
+                // Determining which piece to move after playing a card
+                {
+                    Label = ""
+                    ImagePaths = []
+                    Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
+                    NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
+                    ButtonSuit = Some pieceHere.Piece.Suit
+                    Auto = true
+                }
+            | MovePiece movementStage, _ ->
+                // Determine where to move the piece to
+                {
+                    Label = ""
+                    ImagePaths = []
+                    Enabled =
+                        state.Board
+                        |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
+                        |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
+                        |> Seq.contains pos
+                    NextState = lazy (state |> State.MovePiece pos)
+                    ButtonSuit =
+                        pieceAtThisPosition
+                        |> Option.map (fun pp -> pp.Piece.Suit)
+                    Auto = false
+                }
+            | _ ->
+                // Board inactive
+                {
+                    Label = ""
+                    ImagePaths = []
+                    Enabled = false
+                    NextState = lazy state
+                    ButtonSuit =
+                        pieceAtThisPosition
+                        |> Option.map (fun pp -> pp.Piece.Suit)
+                    Auto = false
+                }
+
+        {
+            properties with
+                Label = String.concat ": " [
+                    if properties.Enabled then
+                        DescribePosition pos
+
                     match pieceAtThisPosition with
-                    | Some piecePos -> Image (DescribePiecePosition piecePos)
-                    | None -> Text ""
-                Enabled = false
-                NextState = lazy state
-                ButtonSuit =
-                    pieceAtThisPosition
-                    |> Option.map (fun pp -> pp.Piece.Suit)
-                Auto = false
-            }
+                    | Some px -> DescribePiece px.Piece
+                    | _ -> ()
+                ]
+                ImagePaths = [
+                    match pieceAtThisPosition with
+                    | Some px -> GetImagePath px
+                    | _ -> ()
+                ]
+        }
 
     let GetBoardButtons state = [
         for rank in List.rev [1..8] do [
