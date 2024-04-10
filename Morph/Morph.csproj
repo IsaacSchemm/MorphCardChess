@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Morph.Logic\Morph.Logic.csproj" />
+    <ProjectReference Include="..\Morph.GameState\Morph.GameState.fsproj" />
   </ItemGroup>
 
 </Project>
