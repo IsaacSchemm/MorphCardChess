@@ -244,13 +244,16 @@ type InteractiveButton = {
     Label: Label
     Enabled: bool
     NextState: State Lazy
-    Color: Color option
+    ButtonSuit: Suit option
     Auto: bool
 } with
-    member this.ForeColor =
-        match this.Color with
-        | Some color -> color
-        | _ -> SystemColors.ControlText
+    member this.ColorClass =
+        match this.ButtonSuit with
+        | Some Heart -> "hearts"
+        | Some Club -> "clubs"
+        | Some Diamond -> "diamonds"
+        | Some Spade -> "spades"
+        | None -> ""
 
 module Interactive =
     let DescribeSuit suit =
@@ -282,13 +285,6 @@ module Interactive =
         |> Seq.sortBy id
         |> String.concat " "
 
-    let GetColor suit =
-        match suit with
-        | Heart -> Color.Red
-        | Club -> Color.DarkGreen
-        | Diamond -> Color.Blue
-        | Spade -> Color.Black
-
     let DescribeCard card = String.concat " " [
         DescribeSuit card.Suit
 
@@ -310,7 +306,7 @@ module Interactive =
                             Label = Text (State.DescribeType pc)
                             Enabled = true
                             NextState = lazy (state |> State.PromotePiece pc)
-                            Color = None
+                            ButtonSuit = Some promotionStage.Piece.Suit
                             Auto = true
                         }
                 | _ -> ()
@@ -319,7 +315,7 @@ module Interactive =
                     Label = Text ""
                     Enabled = false
                     NextState = lazy state
-                    Color = None
+                    ButtonSuit = None
                     Auto = false
                 }
         }
@@ -340,7 +336,7 @@ module Interactive =
                     Label = Text (DescribeCard card)
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
-                    Color = Some (GetColor card.Suit)
+                    ButtonSuit = Some card.Suit
                     Auto = false
                 }
             for _ in state.Deck do
@@ -348,7 +344,7 @@ module Interactive =
                     Label = Text "Draw"
                     Enabled = step
                     NextState = lazy (state |> State.Draw team)
-                    Color = None
+                    ButtonSuit = None
                     Auto = true
                 }
             while true do
@@ -356,7 +352,7 @@ module Interactive =
                     Label = Text ""
                     Enabled = false
                     NextState = lazy state
-                    Color = None
+                    ButtonSuit = None
                     Auto = false
                 }
         }
@@ -440,7 +436,7 @@ module Interactive =
                     && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
                     && Set.isEmpty (squaresIWouldAttack |> Set.intersect opponentPositions)
                 NextState = lazy (state |> State.PlacePiece pos capturedPiece)
-                Color = Some (GetColor capturedPiece.Suit)
+                ButtonSuit = Some capturedPiece.Suit
                 Auto = false
             }
         | ChoosePiece card, Some pieceHere when pieceHere.Piece.Team = state.Team ->
@@ -449,7 +445,7 @@ module Interactive =
                 Label = Image (DescribePiecePosition pieceHere)
                 Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
                 NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
-                Color = Some (GetColor pieceHere.Piece.Suit)
+                ButtonSuit = Some pieceHere.Piece.Suit
                 Auto = true
             }
         | MovePiece movementStage, _ ->
@@ -465,9 +461,9 @@ module Interactive =
                     |> Seq.collect (fun pp -> Chess.getLegalMoves state.Board pp)
                     |> Seq.contains pos
                 NextState = lazy (state |> State.MovePiece pos)
-                Color =
+                ButtonSuit =
                     pieceAtThisPosition
-                    |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+                    |> Option.map (fun pp -> pp.Piece.Suit)
                 Auto = false
             }
         | _ ->
@@ -479,9 +475,9 @@ module Interactive =
                     | None -> Text ""
                 Enabled = false
                 NextState = lazy state
-                Color =
+                ButtonSuit =
                     pieceAtThisPosition
-                    |> Option.map (fun pp -> GetColor pp.Piece.Suit)
+                    |> Option.map (fun pp -> pp.Piece.Suit)
                 Auto = false
             }
 

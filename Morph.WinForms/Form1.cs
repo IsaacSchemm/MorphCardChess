@@ -1,3 +1,4 @@
+using Microsoft.FSharp.Core;
 using Morph.GameState;
 using Morph.GameStateManagement;
 
@@ -43,7 +44,11 @@ namespace Morph.WinForms
         {
             button.Text = (interactiveButton.Label as GameState.Label.Text)?.text ?? "";
             button.Enabled = interactiveButton.Enabled;
-            button.ForeColor = interactiveButton.ForeColor;
+            button.ForeColor =
+                FSharpOption<Suit>.Some(Suit.Heart).Equals(interactiveButton.ButtonSuit) ? Color.Red
+                : FSharpOption<Suit>.Some(Suit.Club).Equals(interactiveButton.ButtonSuit) ? Color.Green
+                : FSharpOption<Suit>.Some(Suit.Diamond).Equals(interactiveButton.ButtonSuit) ? Color.Blue
+                : Color.Black;
             try
             {
                 button.BackgroundImage = interactiveButton.Label is GameState.Label.Image { path: string path }
@@ -163,7 +168,7 @@ namespace Morph.WinForms
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, @"Morph Card Chess v1.0
+            MessageBox.Show(this, @"Morph Card Chess v1.1
 https://lakora.us/morph-card-chess/
 
 © 2024 Isaac Schemm

@@ -11,9 +11,9 @@
 
     .score {
         font-family: monospace;
-        font-size: 24px;
         background-color: white;
         color: lightgray;
+        font-size: 24px;
     }
 
         .score span.active {
@@ -39,6 +39,22 @@
         vertical-align: middle;
     }
 
+        .hand button.spades {
+            color: black;
+        }
+
+        .hand button.hearts {
+            color: red;
+        }
+
+        .hand button.clubs {
+            color: green;
+        }
+
+        .hand button.diamonds {
+            color: blue;
+        }
+
     #board {
         display: inline-grid;
         max-width: 512px;
@@ -52,6 +68,10 @@
             height: 100%;
             object-fit: contain;
         }
+
+    [role=status] {
+        line-height: 24px;
+    }
 </style>
 
 @if (manager.State != null)
@@ -96,7 +116,7 @@
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
                     disabled="@(!cell.Enabled)"
-                    style="color: rgb(@cell.ForeColor.R, @cell.ForeColor.G, @cell.ForeColor.B)">
+                    class="@cell.ColorClass">
                 @if (cell.Label is Label.Text text)
                 {
                     @text.text
@@ -109,7 +129,8 @@
         @foreach (var cell in Interactive.GetPromotionButtons(Team.Light, manager.State))
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)">
+                    disabled="@(!cell.Enabled)"
+                    class="@cell.ColorClass">
                 @if (cell.Label is Label.Text text)
                 {
                     @text.text
@@ -126,7 +147,8 @@
             foreach (var cell in row)
             {
                 <button @onclick=@(() => manager.State = cell.NextState.Value)
-                        disabled="@(!cell.Enabled)">
+                        disabled="@(!cell.Enabled)"
+                        class="@cell.ColorClass">
                     @if (cell.Label is Label.Image image)
                     {
                         <img src="@image.path" />
@@ -146,7 +168,8 @@
         @foreach (var cell in Interactive.GetPromotionButtons(Team.Dark, manager.State))
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)">
+                    disabled="@(!cell.Enabled)"
+                    class="@cell.ColorClass">
                 @if (cell.Label is Label.Text text)
                 {
                     @text.text
@@ -160,7 +183,7 @@
         {
             <button @onclick=@(() => manager.State = cell.NextState.Value)
                     disabled="@(!cell.Enabled)"
-                    style="color: rgb(@cell.ForeColor.R, @cell.ForeColor.G, @cell.ForeColor.B)">
+                    class="@cell.ColorClass">
                 @if (cell.Label is Label.Text text)
                 {
                     @text.text
@@ -174,10 +197,10 @@
     <div class="score">
         @{
             {
-                int hearts = StateModule.GetPointsBySuit(Team.Light, Suit.Heart, manager.State);
-                int clubs = StateModule.GetPointsBySuit(Team.Light, Suit.Club, manager.State);
-                int diamonds = StateModule.GetPointsBySuit(Team.Light, Suit.Diamond, manager.State);
-                int score = StateModule.GetTotalPoints(Team.Light, manager.State);
+                int hearts = StateModule.GetPointsBySuit(Team.Dark, Suit.Heart, manager.State);
+                int clubs = StateModule.GetPointsBySuit(Team.Dark, Suit.Club, manager.State);
+                int diamonds = StateModule.GetPointsBySuit(Team.Dark, Suit.Diamond, manager.State);
+                int score = StateModule.GetTotalPoints(Team.Dark, manager.State);
 
                 <span class="hearts @(hearts > 0 ? "active" : "")">
                     ♥
@@ -219,9 +242,21 @@
 
     <hr />
 
-    <div>
+    <div role="status">
         @StateModule.Describe(manager.State)
     </div>
+
+    <hr />
+
+    <p>
+        Morph Card Chess 2.0
+    </p>
+
+    <p>
+        © 2024 Isaac Schemm
+        <br />
+        GNU APGL v3 or later
+    </p>
 }
 
 @code {
