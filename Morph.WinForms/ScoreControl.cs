@@ -1,7 +1,7 @@
 ﻿using Morph.GameState;
 using System.Data;
 
-namespace Morph
+namespace Morph.WinForms
 {
     public partial class ScoreControl : UserControl
     {

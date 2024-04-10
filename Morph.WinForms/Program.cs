@@ -1,4 +1,4 @@
-namespace Morph
+namespace Morph.WinForms
 {
     internal static class Program
     {

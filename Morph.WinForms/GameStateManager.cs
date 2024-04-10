@@ -1,6 +1,6 @@
 ﻿using Morph.GameState;
 
-namespace Morph
+namespace Morph.WinForms
 {
     public class GameStateManager
     {

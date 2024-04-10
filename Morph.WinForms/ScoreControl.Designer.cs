@@ -1,4 +1,4 @@
-﻿namespace Morph
+﻿namespace Morph.WinForms
 {
     partial class ScoreControl
     {
