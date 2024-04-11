@@ -136,12 +136,26 @@ module State =
             }
         | _ -> state
 
-    let PlayCard card state = {
-        state with
-            LightHand = state.LightHand |> List.except [card]
-            DarkHand = state.DarkHand |> List.except [card]
-            Stage = ChoosePiece card
-    }
+    let rec RemoveCard card hand =
+        match hand with
+        | [] -> failwith "Card not found"
+        | current :: rest when current = card -> rest
+        | current :: rest -> current :: RemoveCard card rest
+
+    let PlayCard card state =
+        match state.Team with
+        | Light ->
+            {
+                state with
+                    LightHand = state.LightHand |> RemoveCard card
+                    Stage = ChoosePiece card
+            }
+        | Dark ->
+            {
+                state with
+                    DarkHand = state.DarkHand |> RemoveCard card
+                    Stage = ChoosePiece card
+            }
 
     let SelectPiece piece state =
         match state.Stage with
@@ -379,7 +393,7 @@ module Interactive =
     ]
 
     let GetImagePath (pp: PiecePosition) = String.concat "" [
-        "../../../cards/"
+        "cards/"
 
         match pp.Piece.Suit with
         | Heart -> "hearts"

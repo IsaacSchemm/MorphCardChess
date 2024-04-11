@@ -7,6 +7,24 @@
 <style type="text/css">
     body {
         text-align: center;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .spades {
+        color: black;
+    }
+
+    .hearts {
+        color: red;
+    }
+
+    .clubs {
+        color: green;
+    }
+
+    .diamonds {
+        color: blue;
     }
 
     .score {
@@ -33,32 +51,16 @@
         }
 
     .hand button {
-        min-width: 160px;
+        min-width: min(160px, 30vw);
         min-height: 32px;
         font-size: 16px;
         vertical-align: middle;
     }
 
-        .hand button.spades {
-            color: black;
-        }
-
-        .hand button.hearts {
-            color: red;
-        }
-
-        .hand button.clubs {
-            color: green;
-        }
-
-        .hand button.diamonds {
-            color: blue;
-        }
-
     #board {
         display: inline-grid;
-        width: 512px;
-        height: 512px;
+        width: min(100vw, 100vh, 512px);
+        height: min(100vw, 100vh, 512px);
         grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     }
@@ -208,7 +210,7 @@
                 <span class="@(score > 0 ? "active" : "")">
                     &nbsp;
                     &nbsp;
-                    ☺
+                    ☻
                     @score
                 </span>
             }
@@ -236,6 +238,38 @@
 
     <hr />
 
+    <div>
+        New game:
+    </div>
+
+    <div class="hand">
+        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Euchre))>
+            Euchre deck
+        </button>
+        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Pinochle))>
+            Pinochle deck
+        </button>
+        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Poker))>
+            Poker deck
+        </button>
+    </div>
+
+    <hr />
+
+    <label>
+        <input type="checkbox" @bind="@auto" />
+        Automatically proceed when only one option is available
+    </label>
+
+    @if (auto)
+    {
+        <p>
+            <b>Not implemented</b>
+        </p>
+    }
+
+    <hr />
+
     <p>
         Morph Card Chess 2.0
     </p>
@@ -249,6 +283,7 @@
 
 @code {
     GameStateManager manager = new GameStateManager();
+    bool auto = false;
 
     protected override void OnInitialized()
     {
