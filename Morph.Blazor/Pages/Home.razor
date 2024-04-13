@@ -59,8 +59,8 @@
 
     #board {
         display: inline-grid;
-        width: min(100vw, 100vh, 512px);
-        height: min(100vw, 100vh, 512px);
+        width: min(100vw, calc(100vh - 270px), 512px);
+        height: min(100vw, calc(100vh - 270px), 512px);
         grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     }
@@ -271,7 +271,7 @@
     <hr />
 
     <p>
-        Morph Card Chess 2.0
+        Morph Card Chess for Blazor
     </p>
 
     <p>
