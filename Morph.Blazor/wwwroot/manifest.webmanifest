@@ -1,15 +1,15 @@
 {
   "name": "Morph Card Chess",
-  "short_name": "Morph",
+  "short_name": "Morph Card Chess",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#b0c7ea",
+  "theme_color": "#782121",
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "alicia-512.png",
+      "src": "alicia-512-circle.png",
       "type": "image/png",
       "sizes": "512x512"
     }
