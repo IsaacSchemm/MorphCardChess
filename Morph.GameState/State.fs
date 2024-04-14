@@ -74,10 +74,10 @@ module State =
 
     let DescribeSuit suit =
         match suit with
-        | Heart -> "♥"
-        | Club -> "♣"
-        | Diamond -> "♦"
-        | Spade -> "♠"
+        | Heart -> "♡"
+        | Club -> "♧"
+        | Diamond -> "♢"
+        | Spade -> "♤"
 
     let DescribeScore team state =
         seq {

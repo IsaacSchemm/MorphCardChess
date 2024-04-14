@@ -8,8 +8,8 @@
   "theme_color": "#782121",
   "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "alicia-512-circle.png",
+    { 
+      "src": "alicia-512-white.png",
       "type": "image/png",
       "sizes": "512x512"
     }
