@@ -1,11 +1,11 @@
 {
-  "name": "Morph.Blazor",
-  "short_name": "Morph.Blazor",
+  "name": "Morph Card Chess",
+  "short_name": "Morph",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "theme_color": "#782121",
   "prefer_related_applications": false,
   "icons": [
     {
