@@ -88,6 +88,10 @@
             object-fit: contain;
         }
 
+            #board img.flipped {
+                transform: rotate(180deg);
+            }
+
     [role=status] {
         line-height: 24px;
     }
@@ -162,9 +166,26 @@
                 <button @onclick=@(() => manager.State = cell.NextState.Value)
                         disabled="@(!cell.Enabled)"
                         class="@cell.ColorClass">
-                    @if (cell.ImagePaths.FirstOrDefault() is string path)
+                    @if (cell.Pieces.FirstOrDefault() is PiecePosition pp)
                     {
-                        <img src="@cell.ImagePaths.FirstOrDefault()" alt="@cell.Label" />
+                        string suit = pp.Piece.Suit.IsHeart ? "hearts"
+                            : pp.Piece.Suit.IsClub ? "clubs"
+                            : pp.Piece.Suit.IsDiamond ? "diamonds"
+                            : "spades";
+
+                        int type = pp.Type.IsRook ? 4
+                            : pp.Type.IsBishop ? 3
+                            : pp.Type.IsKnight ? 2
+                            : 1;
+
+                        if (pp.Piece.Team.IsLight)
+                        {
+                            type += 4;
+                        }
+
+                        <img src="cards/@(suit)/@(type).svg"
+                             alt="@cell.Label"
+                             class="@(pp.Piece.Team.IsLight ? "flipped" : "")" />
                     }
                     else
                     {

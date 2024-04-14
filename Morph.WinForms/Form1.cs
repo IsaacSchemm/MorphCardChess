@@ -26,25 +26,39 @@ namespace Morph.WinForms
 
         private void UpdateButton(Button button, InteractiveButton interactiveButton)
         {
-            button.Text = interactiveButton.ImagePaths.Length == 0
-                ? interactiveButton.Label ?? ""
-                : "";
             button.Enabled = interactiveButton.Enabled;
             button.ForeColor =
                 FSharpOption<Suit>.Some(Suit.Heart).Equals(interactiveButton.ButtonSuit) ? Color.Red
                 : FSharpOption<Suit>.Some(Suit.Club).Equals(interactiveButton.ButtonSuit) ? Color.Green
                 : FSharpOption<Suit>.Some(Suit.Diamond).Equals(interactiveButton.ButtonSuit) ? Color.Blue
                 : Color.Black;
+            button.BackgroundImage = null;
             try
             {
-                button.BackgroundImage = interactiveButton.ImagePaths.FirstOrDefault() is string path
-                    ? Image.FromFile(path)
-                    : null;
+                if (interactiveButton.Pieces.FirstOrDefault() is PiecePosition pp)
+                {
+                    string suit = pp.Piece.Suit.IsHeart ? "hearts"
+                            : pp.Piece.Suit.IsClub ? "clubs"
+                            : pp.Piece.Suit.IsDiamond ? "diamonds"
+                            : "spades";
+
+                    int type = pp.Type.IsRook ? 4
+                        : pp.Type.IsBishop ? 3
+                        : pp.Type.IsKnight ? 2
+                        : 1;
+
+                    if (pp.Piece.Team.IsLight)
+                    {
+                        type += 4;
+                    }
+
+                    button.BackgroundImage = Image.FromFile($"cards/{suit}/{type}.png");
+                }
             }
-            catch (FileNotFoundException)
-            {
-                button.BackgroundImage = null;
-            }
+            catch (FileNotFoundException) { }
+            button.Text = button.BackgroundImage == null
+                ? interactiveButton.Label ?? ""
+                : "";
             button.BackgroundImageLayout = ImageLayout.Zoom;
         }
 

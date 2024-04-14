@@ -294,7 +294,7 @@ type Label = Text of text: string | Image of path: string
 
 type InteractiveButton = {
     Label: string
-    ImagePaths: string list
+    Pieces: PiecePosition list
     Enabled: bool
     NextState: State Lazy
     ButtonSuit: Suit option
@@ -312,7 +312,7 @@ module Interactive =
     let MinLengthButtonList len state items =
         let disabledButton = {
             Label = ""
-            ImagePaths = []
+            Pieces = []
             Enabled = false
             NextState = lazy state
             ButtonSuit = None
@@ -330,7 +330,7 @@ module Interactive =
                 for pc in promotionStage.PromotionOptions do
                     {
                         Label = State.DescribeType pc
-                        ImagePaths = []
+                        Pieces = []
                         Enabled = true
                         NextState = lazy (state |> State.PromotePiece pc)
                         ButtonSuit = Some promotionStage.Piece.Suit
@@ -352,7 +352,7 @@ module Interactive =
                 let card = hand[index]
                 {
                     Label = State.DescribeCard card
-                    ImagePaths = []
+                    Pieces = []
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     ButtonSuit = Some card.Suit
@@ -361,7 +361,7 @@ module Interactive =
             else
                 {
                     Label = "Draw"
-                    ImagePaths = []
+                    Pieces = []
                     Enabled = step
                     NextState = lazy (state |> State.Draw team)
                     ButtonSuit = None
@@ -380,30 +380,6 @@ module Interactive =
     let DescribePosition (pos: Position) = String.concat "" [
         string (char (int 'a' + pos.File - 1))
         string pos.Rank
-    ]
-
-    let GetImagePath (pp: PiecePosition) = String.concat "" [
-        "cards/"
-
-        match pp.Piece.Suit with
-        | Heart -> "hearts"
-        | Club -> "clubs"
-        | Diamond -> "diamonds"
-        | Spade -> "spades"
-
-        "/"
-
-        match pp.Piece.Team, pp.Type with
-        | Light, Rook -> "8"
-        | Light, Bishop -> "7"
-        | Light, Knight -> "6"
-        | Light, Wazir -> "5"
-        | Dark, Rook -> "4"
-        | Dark, Bishop -> "3"
-        | Dark, Knight -> "2"
-        | Dark, Wazir -> "1"
-
-        ".svg"
     ]
 
     let GetBoardButton state rank file =
@@ -431,7 +407,7 @@ module Interactive =
                     |> Set.ofSeq
                 {
                     Label = ""
-                    ImagePaths = []
+                    Pieces = []
                     Enabled =
                         inBack
                         && not (state.Board |> Seq.map (fun x -> x.Position) |> Seq.contains pos)
@@ -444,7 +420,7 @@ module Interactive =
                 // Determining which piece to move after playing a card
                 {
                     Label = ""
-                    ImagePaths = []
+                    Pieces = []
                     Enabled = card.Suit = pieceHere.Piece.Suit || card.Suit = Spade
                     NextState = lazy (state |> State.SelectPiece pieceHere.Piece)
                     ButtonSuit = Some pieceHere.Piece.Suit
@@ -454,7 +430,7 @@ module Interactive =
                 // Determine where to move the piece to
                 {
                     Label = ""
-                    ImagePaths = []
+                    Pieces = []
                     Enabled =
                         state.Board
                         |> Seq.where (fun pp -> pp.Piece = movementStage.Piece)
@@ -470,7 +446,7 @@ module Interactive =
                 // Board inactive
                 {
                     Label = ""
-                    ImagePaths = []
+                    Pieces = []
                     Enabled = false
                     NextState = lazy state
                     ButtonSuit =
@@ -489,11 +465,7 @@ module Interactive =
                     | Some px -> DescribePiece px.Piece
                     | _ -> ()
                 ]
-                ImagePaths = [
-                    match pieceAtThisPosition with
-                    | Some px -> GetImagePath px
-                    | _ -> ()
-                ]
+                Pieces = Option.toList pieceAtThisPosition
         }
 
     let GetBoardButtons state = [
