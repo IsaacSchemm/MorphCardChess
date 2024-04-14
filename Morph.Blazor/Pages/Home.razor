@@ -281,11 +281,11 @@
     </div>
 
     <div class="hand">
-        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Euchre))>
-            Euchre deck
-        </button>
         <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Pinochle))>
             Pinochle deck
+        </button>
+        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Euchre))>
+            Euchre deck
         </button>
         <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Poker))>
             Poker deck

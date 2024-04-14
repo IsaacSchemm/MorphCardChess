@@ -195,7 +195,7 @@
             // 
             // newGameToolStripMenuItem
             // 
-            newGameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { euchreDeckToolStripMenuItem, pinochleDeckToolStripMenuItem, pokerDeckToolStripMenuItem });
+            newGameToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { pinochleDeckToolStripMenuItem, euchreDeckToolStripMenuItem, pokerDeckToolStripMenuItem });
             newGameToolStripMenuItem.Name = "newGameToolStripMenuItem";
             newGameToolStripMenuItem.Size = new Size(180, 22);
             newGameToolStripMenuItem.Text = "&New Game";
