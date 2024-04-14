@@ -108,7 +108,7 @@ namespace Morph.WinForms
             Manager = new StateManager();
             Manager.StateChanged += Manager_StateChanged;
 
-            ApplyState(StateModule.CreateStartingState(DeckType.Euchre));
+            ApplyState(StateModule.CreateStartingState(DeckType.Pinochle));
         }
 
         private void Manager_StateChanged(object? sender, Unit _)
