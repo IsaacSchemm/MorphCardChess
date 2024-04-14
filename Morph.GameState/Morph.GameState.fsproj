@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Chess.fs" />
     <Compile Include="State.fs" />
+    <Compile Include="StateManager.fs" />
   </ItemGroup>
 
 </Project>

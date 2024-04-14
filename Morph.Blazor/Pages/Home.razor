@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using Morph.GameState
-@using Morph.GameStateManagement
 
 <PageTitle>Morph Card Chess</PageTitle>
 
@@ -220,12 +219,12 @@
     <hr />
 
     <div class="hand">
-        <button @onclick=@(() => manager.State = manager.PreviousState ?? manager.State)
-                disabled="@(manager.PreviousState == null)">
+        <button @onclick=@(() => manager.State = manager.PreviousStates.First())
+                disabled="@(!manager.PreviousStates.Any())">
             Undo
         </button>
-        <button @onclick=@(() => manager.State = manager.NextState ?? manager.State)
-                disabled="@(manager.NextState == null)">
+        <button @onclick=@(() => manager.State = manager.NextStates.First())
+                disabled="@(!manager.NextStates.Any())">
             Redo
         </button>
     </div>
@@ -275,7 +274,7 @@
 }
 
 @code {
-    GameStateManager manager = new GameStateManager();
+    StateManager manager = new StateManager();
 
     protected override void OnInitialized()
     {

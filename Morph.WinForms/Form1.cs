@@ -1,6 +1,5 @@
 using Microsoft.FSharp.Core;
 using Morph.GameState;
-using Morph.GameStateManagement;
 
 namespace Morph.WinForms
 {
@@ -10,7 +9,7 @@ namespace Morph.WinForms
         private readonly Button[][] _cells = new Button[8][];
         private readonly Button[] _bottomCards = new Button[5];
 
-        private readonly GameStateManager Manager = new();
+        private readonly StateManager Manager = new();
 
         private void ApplyState(State state)
         {
@@ -103,16 +102,16 @@ namespace Morph.WinForms
                 tableLayoutPanel2.Controls.Add(button);
             }
 
-            btnUndo.Click += (_, __) => Manager.State = Manager.PreviousState ?? Manager.State;
-            btnRedo.Click += (_, __) => Manager.State = Manager.NextState ?? Manager.State;
+            btnUndo.Click += (_, __) => Manager.State = Manager.PreviousStates.First();
+            btnRedo.Click += (_, __) => Manager.State = Manager.NextStates.First();
 
-            Manager = new GameStateManager();
+            Manager = new StateManager();
             Manager.StateChanged += Manager_StateChanged;
 
             ApplyState(StateModule.CreateStartingState(DeckType.Euchre));
         }
 
-        private void Manager_StateChanged(object? sender, EventArgs e)
+        private void Manager_StateChanged(object? sender, Unit _)
         {
             var state = new
             {
@@ -144,8 +143,8 @@ namespace Morph.WinForms
 
             toolStripStatusLabel1.Text = StateModule.GetStatusText(Manager.State);
 
-            btnUndo.Enabled = Manager.PreviousState != null;
-            btnRedo.Enabled = Manager.NextState != null;
+            btnUndo.Enabled = Manager.PreviousStates.Any();
+            btnRedo.Enabled = Manager.NextStates.Any();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -155,7 +154,7 @@ namespace Morph.WinForms
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, @"Morph Card Chess v1.1
+            MessageBox.Show(this, @"Morph Card Chess for Windows Forms
 https://lakora.us/morph-card-chess/
 
 © 2024 Isaac Schemm
