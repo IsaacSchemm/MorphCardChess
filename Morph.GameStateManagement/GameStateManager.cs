@@ -38,6 +38,9 @@ namespace Morph.GameStateManagement
                         if (states.Count() != 1)
                             break;
 
+                        if (effectiveNextState == states.Single())
+                            break;
+
                         effectiveNextState = states.Single();
                     }
 

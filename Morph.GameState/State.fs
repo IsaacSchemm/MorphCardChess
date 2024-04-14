@@ -1,7 +1,5 @@
 ﻿namespace Morph.GameState
 
-open System.Drawing
-
 type DeckType = Euchre | Pinochle | Poker
 
 type Card = { Suit: Suit; Rank: int }
@@ -74,7 +72,47 @@ module State =
         | Knight -> "♞ Bee"
         | Wazir -> "Human"
 
-    let Describe state =
+    let DescribeSuit suit =
+        match suit with
+        | Heart -> "♥"
+        | Club -> "♣"
+        | Diamond -> "♦"
+        | Spade -> "♠"
+
+    let DescribeScore team state =
+        seq {
+            let myPoints = [
+                for pointTeam, suit in state.Points do
+                    if team = pointTeam then
+                        suit
+            ]
+
+            for suit in myPoints do
+                DescribeSuit suit
+
+            let hasAll =
+                myPoints |> List.contains Heart
+                && myPoints |> List.contains Club
+                && myPoints |> List.contains Diamond
+
+            if hasAll then
+                sprintf "(%d)" (List.length myPoints)
+        }
+        |> Seq.sortBy id
+        |> String.concat " "
+
+    let DescribeCard card = String.concat " " [
+        DescribeSuit card.Suit
+
+        match card.Rank with
+        | 13 -> "K"
+        | 12 -> "Q"
+        | 11 -> "J"
+        | 1 -> "A"
+        | r -> string r
+    ]
+
+    let GetStatusText state =
         match state.Stage with
         | ReplaceCapturedPiece piece ->
             $"""{GetTeamName state.Team}: choose where to place your captured {piece.Suit} piece back on the board (as a {DescribeType Wazir})"""
@@ -271,93 +309,56 @@ type InteractiveButton = {
         | None -> ""
 
 module Interactive =
-    let DescribeSuit suit =
-        match suit with
-        | Heart -> "♥"
-        | Club -> "♣"
-        | Diamond -> "♦"
-        | Spade -> "♠"
-
-    let DescribeScore team state =
-        seq {
-            let myPoints = [
-                for pointTeam, suit in state.Points do
-                    if team = pointTeam then
-                        suit
-            ]
-
-            for suit in myPoints do
-                DescribeSuit suit
-
-            let hasAll =
-                myPoints |> List.contains Heart
-                && myPoints |> List.contains Club
-                && myPoints |> List.contains Diamond
-
-            if hasAll then
-                sprintf "(%d)" (List.length myPoints)
+    let MinLengthButtonList len state items =
+        let disabledButton = {
+            Label = ""
+            ImagePaths = []
+            Enabled = false
+            NextState = lazy state
+            ButtonSuit = None
+            Auto = false
         }
-        |> Seq.sortBy id
-        |> String.concat " "
 
-    let DescribeCard card = String.concat " " [
-        DescribeSuit card.Suit
+        let count = max 0 (len - List.length items)
 
-        match card.Rank with
-        | 13 -> "K"
-        | 12 -> "Q"
-        | 11 -> "J"
-        | 1 -> "A"
-        | r -> string r
+        items @ (List.replicate count disabledButton)
+
+    let GetPromotionButtons team state = MinLengthButtonList 2 state [
+        if state.Team = team then
+            match state.Stage with
+            | PromotePiece promotionStage ->
+                for pc in promotionStage.PromotionOptions do
+                    {
+                        Label = State.DescribeType pc
+                        ImagePaths = []
+                        Enabled = true
+                        NextState = lazy (state |> State.PromotePiece pc)
+                        ButtonSuit = Some promotionStage.Piece.Suit
+                        Auto = true
+                    }
+            | _ -> ()
     ]
 
-    let GetPromotionButtons team state =
-        seq {
-            if state.Team = team then
-                match state.Stage with
-                | PromotePiece promotionStage ->
-                    for pc in promotionStage.PromotionOptions do
-                        {
-                            Label = State.DescribeType pc
-                            ImagePaths = []
-                            Enabled = true
-                            NextState = lazy (state |> State.PromotePiece pc)
-                            ButtonSuit = Some promotionStage.Piece.Suit
-                            Auto = true
-                        }
-                | _ -> ()
-            while true do
+    let GetHandButtons team state = MinLengthButtonList 3 state [
+        let step =
+            state.Team = team
+            && state.Stage = ChooseCard
+        let hand =
+            match team with
+            | Light -> state.LightHand
+            | Dark -> state.DarkHand
+        for index in [0..2] do
+            if List.length hand > index then
+                let card = hand[index]
                 {
-                    Label = ""
-                    ImagePaths = []
-                    Enabled = false
-                    NextState = lazy state
-                    ButtonSuit = None
-                    Auto = false
-                }
-        }
-        |> Seq.truncate 2
-        |> Seq.toList
-
-    let GetHandButtons team state =
-        seq {
-            let step =
-                state.Team = team
-                && state.Stage = ChooseCard
-            let hand =
-                match team with
-                | Light -> state.LightHand
-                | Dark -> state.DarkHand
-            for card in hand do
-                {
-                    Label = DescribeCard card
+                    Label = State.DescribeCard card
                     ImagePaths = []
                     Enabled = step && (hand.Length >= 3 || state.Deck = [])
                     NextState = lazy (state |> State.PlayCard card)
                     ButtonSuit = Some card.Suit
                     Auto = false
                 }
-            for _ in state.Deck do
+            else
                 {
                     Label = "Draw"
                     ImagePaths = []
@@ -366,25 +367,14 @@ module Interactive =
                     ButtonSuit = None
                     Auto = true
                 }
-            while true do
-                {
-                    Label = ""
-                    ImagePaths = []
-                    Enabled = false
-                    NextState = lazy state
-                    ButtonSuit = None
-                    Auto = false
-                }
-        }
-        |> Seq.truncate 3
-        |> Seq.toList
+    ]
 
-    let GetHandAndPromotionButtons team state =
-        GetPromotionButtons team state @ GetHandButtons team state
+    let GetFiveButtonRow team state =
+        GetPromotionButtons team state @ GetHandButtons team state |> List.truncate 5
 
     let DescribePiece (piece: Piece) = String.concat " " [
         State.GetTeamName piece.Team
-        DescribeSuit piece.Suit
+        State.DescribeSuit piece.Suit
     ]
 
     let DescribePosition (pos: Position) = String.concat "" [
@@ -514,8 +504,10 @@ module Interactive =
     ]
 
     let GetAllButtons state = [
-        yield! GetHandAndPromotionButtons Light state
+        yield! GetHandButtons Light state
+        yield! GetPromotionButtons Light state
         for row in GetBoardButtons state do
             yield! row
-        yield! GetHandAndPromotionButtons Dark state
+        yield! GetHandButtons Dark state
+        yield! GetPromotionButtons Dark state
     ]

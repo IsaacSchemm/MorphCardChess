@@ -63,7 +63,7 @@ namespace Morph.WinForms
                     Font = new Font(SystemFonts.DefaultFont.FontFamily, 16f)
                 };
                 button.Click += (_, __) =>
-                    PerformClick(Interactive.GetHandAndPromotionButtons(Team.Light, Manager.State)[y]);
+                    PerformClick(Interactive.GetFiveButtonRow(Team.Light, Manager.State)[y]);
                 _topCards[y] = button;
                 tableLayoutPanel1.Controls.Add(button);
             }
@@ -98,7 +98,7 @@ namespace Morph.WinForms
                     Font = new Font(SystemFonts.DefaultFont.FontFamily, 16f)
                 };
                 button.Click += (_, __) =>
-                    PerformClick(Interactive.GetHandAndPromotionButtons(Team.Dark, Manager.State)[y]);
+                    PerformClick(Interactive.GetFiveButtonRow(Team.Dark, Manager.State)[y]);
                 _bottomCards[y] = button;
                 tableLayoutPanel2.Controls.Add(button);
             }
@@ -116,9 +116,9 @@ namespace Morph.WinForms
         {
             var state = new
             {
-                TopCards = Interactive.GetHandAndPromotionButtons(Team.Light, Manager.State),
+                TopCards = Interactive.GetFiveButtonRow(Team.Light, Manager.State),
                 Rows = Interactive.GetBoardButtons(Manager.State),
-                BottomCards = Interactive.GetHandAndPromotionButtons(Team.Dark, Manager.State),
+                BottomCards = Interactive.GetFiveButtonRow(Team.Dark, Manager.State),
             };
 
             for (int x = 0; x < state.TopCards.Length; x++)
@@ -142,7 +142,7 @@ namespace Morph.WinForms
             scoreControlLight.ApplyState(Manager.State, Team.Light);
             scoreControlDark.ApplyState(Manager.State, Team.Dark);
 
-            toolStripStatusLabel1.Text = StateModule.Describe(Manager.State);
+            toolStripStatusLabel1.Text = StateModule.GetStatusText(Manager.State);
 
             btnUndo.Enabled = Manager.PreviousState != null;
             btnRedo.Enabled = Manager.NextState != null;
