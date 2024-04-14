@@ -10,19 +10,12 @@ type StateManager() =
         let buttons =
             Interactive.GetAllButtons state
             |> List.where (fun b -> b.Enabled)
+            |> List.map (fun b -> b.NextState.Value, b.Auto)
+            |> List.distinct
 
-        if buttons |> List.exists (fun b -> not b.Auto) then
-            state
-        else
-            let states =
-                buttons
-                |> List.map (fun b -> b.NextState.Value)
-                |> List.distinct
-            match states with
-            | [x] when x <> state ->
-                findNextState x
-            | _ ->
-                state
+        match buttons with
+        | [(st, true)] -> findNextState st
+        | _ -> state
 
     [<CLIEvent>]
     member _.StateChanged = stateChanged.Publish
