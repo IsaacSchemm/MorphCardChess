@@ -10,6 +10,24 @@
         margin-right: 0;
     }
 
+    button {
+        appearance: none;
+        background-color: white;
+        border: 1px solid darkgray;
+        border-radius: 4px;
+        margin: 1px;
+    }
+
+        button:not([disabled]) {
+            border-color: currentColor;
+            cursor: pointer;
+        }
+
+            button:not([disabled]):hover,
+            button:not([disabled]):active {
+                background-color: lightgray;
+            }
+
     .spades {
         color: black;
     }
@@ -58,8 +76,8 @@
 
     #board {
         display: inline-grid;
-        width: min(100vw, calc(100vh - 270px), 512px);
-        height: min(100vw, calc(100vh - 270px), 512px);
+        width: max(256px, min(100vw, calc(100vh - 270px), 512px));
+        height: max(256px, min(100vw, calc(100vh - 270px), 512px));
         grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     }

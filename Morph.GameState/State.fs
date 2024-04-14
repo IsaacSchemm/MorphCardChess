@@ -403,7 +403,7 @@ module Interactive =
         | Dark, Knight -> "2"
         | Dark, Wazir -> "1"
 
-        ".png"
+        ".svg"
     ]
 
     let GetBoardButton state rank file =
