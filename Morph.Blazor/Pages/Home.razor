@@ -257,16 +257,9 @@
     <hr />
 
     <label>
-        <input type="checkbox" @bind="@auto" />
+        <input type="checkbox" @bind="@(manager.AutoAdvance)" />
         Automatically proceed when only one option is available
     </label>
-
-    @if (auto)
-    {
-        <p>
-            <b>Not implemented</b>
-        </p>
-    }
 
     <hr />
 
@@ -283,7 +276,6 @@
 
 @code {
     GameStateManager manager = new GameStateManager();
-    bool auto = false;
 
     protected override void OnInitialized()
     {

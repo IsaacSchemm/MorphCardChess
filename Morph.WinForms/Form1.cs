@@ -14,21 +14,6 @@ namespace Morph.WinForms
 
         private void ApplyState(State state)
         {
-            var buttons = Interactive.GetAllButtons(state)
-                .Where(b => b.Enabled);
-
-            if (buttons.All(b => b.Auto))
-            {
-                var states = buttons
-                    .Select(b => b.NextState.Value)
-                    .Distinct();
-                if (states.Count() == 1)
-                {
-                    ApplyState(states.Single());
-                    return;
-                }
-            }
-
             Manager.State = state;
         }
 

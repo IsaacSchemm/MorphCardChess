@@ -9,18 +9,39 @@ namespace Morph.GameStateManagement
         private List<State> states = [];
         private int index = -1;
 
+        public bool AutoAdvance { get; set; } = true;
+
         public State State
         {
             get => states[index];
             set
             {
-                if (states.Contains(value))
+                var effectiveNextState = value;
+
+                if (states.Contains(effectiveNextState))
                 {
-                    index = states.IndexOf(value);
+                    index = states.IndexOf(effectiveNextState);
                 }
                 else
                 {
-                    states = states.Take(index + 1).Concat([value]).ToList();
+                    while (AutoAdvance)
+                    {
+                        var buttons = Interactive.GetAllButtons(effectiveNextState)
+                            .Where(b => b.Enabled);
+
+                        if (buttons.Any(b => !b.Auto))
+                            break;
+
+                        var states = buttons
+                            .Select(b => b.NextState.Value)
+                            .Distinct();
+                        if (states.Count() != 1)
+                            break;
+
+                        effectiveNextState = states.Single();
+                    }
+
+                    states = states.Take(index + 1).Concat([effectiveNextState]).ToList();
                     index++;
                 }
                 StateChanged?.Invoke(this, new EventArgs());
