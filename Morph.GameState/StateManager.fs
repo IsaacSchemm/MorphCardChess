@@ -14,7 +14,7 @@ type StateManager() =
             |> List.distinct
 
         match buttons with
-        | [(st, true)] -> findNextState st
+        | [(st, true)] when st <> state -> findNextState st
         | _ -> state
 
     [<CLIEvent>]
