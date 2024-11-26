@@ -566,16 +566,24 @@ module HastyEngine =
         | { stack = state :: _ } -> ScoreState state
 
     let GetBestStateChain state =
-        match GetPossibleStateChains { stack = [state] } with
-        | [] ->
+        let initialChain =
             { stack = [state] }
-        | candidates ->
-            candidates
+        let topFive =
+            GetPossibleStateChains initialChain
             |> Seq.sortByDescending ScoreStateChain
             |> Seq.truncate 5
-            |> Seq.maxBy (fun candidate ->
-                let nextChain =
-                    GetPossibleStateChains candidate
-                    |> Seq.sortBy ScoreStateChain
-                    |> Seq.head
-                ScoreStateChain nextChain)
+            |> Seq.cache
+        topFive
+        |> Seq.choose (fun candidate ->
+            GetPossibleStateChains candidate
+            |> Seq.sortBy ScoreStateChain
+            |> Seq.tryHead
+            |> Option.map (fun nextChain -> {|
+                candidate = candidate
+                score = ScoreStateChain nextChain
+            |}))
+        |> Seq.sortByDescending (fun x -> x.score)
+        |> Seq.map (fun x -> x.candidate)
+        |> Seq.tryHead
+        |> Option.orElse (Seq.tryHead topFive)
+        |> Option.defaultValue initialChain
