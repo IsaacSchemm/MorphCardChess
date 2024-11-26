@@ -483,3 +483,79 @@ module Interactive =
         yield! GetHandButtons Dark state
         yield! GetPromotionButtons Dark state
     ]
+
+module HastyEngine =
+    let GetPossibleNextState state = [
+        let buttons = Interactive.GetAllButtons state
+
+        for button in buttons do
+            if button.Enabled then
+                let nextState = button.NextState.Value
+                if nextState <> state then
+                    yield nextState
+    ]
+
+    let ScoreTeam team state = List.sum [
+        let pointCounts = state.Points |> Seq.countBy id |> Map.ofSeq
+        let getBySuit suit = pointCounts |> Map.tryFind (team, suit) |> Option.defaultValue 0
+
+        yield 2000 * getBySuit Heart
+        yield 2000 * getBySuit Club
+        yield 2000 * getBySuit Diamond
+
+        if [Heart; Club; Diamond] |> List.forall (fun x -> getBySuit x > 0) then
+            yield 5000
+
+        for pp in state.Board do
+            if pp.Piece.Team = team && pp.Type <> Wazir then
+                if pp.Piece.Suit = Spade
+                then yield 50
+                else yield 100
+
+        let vulnerablePositions =
+            state.Board
+            |> Seq.where (fun pp -> pp.Piece.Team <> team)
+            |> Seq.collect (Chess.getLegalMoves state.Board)
+            |> Set.ofSeq
+
+        for myPiece in state.Board |> Seq.where (fun o -> o.Piece.Team = team) do
+            if Set.contains myPiece.Position vulnerablePositions then
+                yield -500
+
+            let legalMoves = Chess.getLegalMoves state.Board myPiece
+
+            yield min (Set.count legalMoves) 5
+
+            let attacked =
+                state.Board
+                |> Seq.where (fun pp -> pp.Piece.Team <> team)
+                |> Seq.exists (fun pp -> Set.contains pp.Position legalMoves)
+
+            if attacked then
+                yield 250
+    ]
+
+    let ScoreState state =
+        ScoreTeam Light state - ScoreTeam Dark state
+
+    let rec GetPossibleStateChains chain =
+        match chain with
+        | [] -> []
+        | state :: _ -> [
+            for next in GetPossibleNextState state do
+                if next.Team = state.Team then
+                    yield! GetPossibleStateChains (next :: chain)
+                else
+                    yield next :: chain
+        ]
+
+    let ScoreStateChain chain =
+        match chain with
+        | [] -> 0
+        | state :: _ -> ScoreState state
+
+    let GetBestStateChain state =
+        GetPossibleStateChains [state]
+        |> Seq.sortByDescending ScoreStateChain
+        |> Seq.tryHead
+        |> Option.defaultValue [state]

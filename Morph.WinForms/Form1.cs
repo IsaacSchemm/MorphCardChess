@@ -13,6 +13,7 @@ namespace Morph.WinForms
 
         private void ApplyState(State state)
         {
+            Text = $"{HastyEngine.ScoreState(state)}";
             Manager.State = state;
         }
 
@@ -125,8 +126,10 @@ namespace Morph.WinForms
             ApplyState(StateModule.CreateStartingState(DeckType.Pinochle));
         }
 
-        private void Manager_StateChanged(object? sender, Unit _)
+        private async void Manager_StateChanged(object? sender, Unit _)
         {
+            Text = $"{HastyEngine.ScoreState(Manager.State)}";
+
             var state = new
             {
                 TopCards = Interactive.GetFiveButtonRow(Team.Light, Manager.State),
@@ -159,6 +162,18 @@ namespace Morph.WinForms
 
             btnUndo.Enabled = Manager.PreviousStates.Any();
             btnRedo.Enabled = Manager.NextStates.Any();
+
+            if (Enabled && Manager.State.Team.IsLight)
+            {
+                var stateChain = HastyEngine.GetBestStateChain(Manager.State);
+                Enabled = false;
+                foreach (var x in stateChain.Reverse())
+                {
+                    await Task.Delay(250);
+                    ApplyState(x);
+                }
+                Enabled = true;
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
