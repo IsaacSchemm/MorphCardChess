@@ -533,6 +533,15 @@ module HastyEngine =
 
             if attacked then
                 yield 250
+
+        let hand =
+            match team with
+            | Light -> state.LightHand
+            | Dark -> state.DarkHand
+
+        for card in hand do
+            if card.Rank > 10 then yield 1
+            if card.Suit = Spade then yield 1
     ]
 
     let ScoreState state =
@@ -555,7 +564,17 @@ module HastyEngine =
         | state :: _ -> ScoreState state
 
     let GetBestStateChain state =
-        GetPossibleStateChains [state]
-        |> Seq.sortByDescending ScoreStateChain
-        |> Seq.tryHead
-        |> Option.defaultValue [state]
+        match GetPossibleStateChains [state] with
+        | [] ->
+            [state]
+        | candidates ->
+            candidates
+            |> Seq.sortByDescending ScoreStateChain
+            |> Seq.truncate 5
+            |> Seq.maxBy (fun candidate ->
+                let nextChain =
+                    GetPossibleStateChains candidate
+                    |> Seq.sortBy ScoreStateChain
+                    |> Seq.tryHead
+                    |> Option.defaultValue candidate
+                ScoreStateChain nextChain)
