@@ -167,7 +167,7 @@ namespace Morph.WinForms
             {
                 var stateChain = HastyEngine.GetBestStateChain(Manager.State);
                 Enabled = false;
-                foreach (var x in stateChain.Reverse())
+                foreach (var x in stateChain.stack.Reverse())
                 {
                     await Task.Delay(250);
                     ApplyState(x);

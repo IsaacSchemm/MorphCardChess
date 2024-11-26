@@ -547,26 +547,28 @@ module HastyEngine =
     let ScoreState state =
         ScoreTeam Light state - ScoreTeam Dark state
 
-    let rec GetPossibleStateChains chain =
+    type Chain = { stack: State list }
+
+    let rec GetPossibleStateChains chain: Chain list =
         match chain with
-        | [] -> []
-        | state :: _ -> [
+        | { stack = [] } -> []
+        | { stack = state :: _ } -> [
             for next in GetPossibleNextState state do
                 if next.Team = state.Team then
-                    yield! GetPossibleStateChains (next :: chain)
+                    yield! GetPossibleStateChains { stack = next :: chain.stack }
                 else
-                    yield next :: chain
+                    yield { stack = next :: chain.stack }
         ]
 
     let ScoreStateChain chain =
         match chain with
-        | [] -> 0
-        | state :: _ -> ScoreState state
+        | { stack = [] } -> 0
+        | { stack = state :: _ } -> ScoreState state
 
     let GetBestStateChain state =
-        match GetPossibleStateChains [state] with
+        match GetPossibleStateChains { stack = [state] } with
         | [] ->
-            [state]
+            { stack = [state] }
         | candidates ->
             candidates
             |> Seq.sortByDescending ScoreStateChain
@@ -575,6 +577,5 @@ module HastyEngine =
                 let nextChain =
                     GetPossibleStateChains candidate
                     |> Seq.sortBy ScoreStateChain
-                    |> Seq.tryHead
-                    |> Option.defaultValue candidate
+                    |> Seq.head
                 ScoreStateChain nextChain)
