@@ -13,7 +13,6 @@ namespace Morph.WinForms
 
         private void ApplyState(State state)
         {
-            Text = $"{HastyEngine.ScoreState(state)}";
             Manager.State = state;
         }
 
@@ -128,8 +127,6 @@ namespace Morph.WinForms
 
         private async void Manager_StateChanged(object? sender, Unit _)
         {
-            Text = $"{HastyEngine.ScoreState(Manager.State)}";
-
             var state = new
             {
                 TopCards = Interactive.GetFiveButtonRow(Team.Light, Manager.State),
@@ -163,9 +160,11 @@ namespace Morph.WinForms
             btnUndo.Enabled = Manager.PreviousStates.Any();
             btnRedo.Enabled = Manager.NextStates.Any();
 
-            if (Enabled && Manager.State.Team.IsLight)
+            if (Enabled && Manager.State.Team.IsLight && chkUseEngine.Checked)
             {
-                var stateChain = HastyEngine.GetBestStateChain(Manager.State);
+                DateTime dt = DateTime.Now;
+                var stateChain = Engine.GetBestStateChain(Manager.State);
+                System.Diagnostics.Debug.WriteLine(DateTime.Now - dt);
                 Enabled = false;
                 foreach (var x in stateChain.stack.Reverse())
                 {

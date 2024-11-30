@@ -48,6 +48,7 @@
             exitToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
+            chkUseEngine = new CheckBox();
             panel1.SuspendLayout();
             statusStrip1.SuspendLayout();
             menuStrip1.SuspendLayout();
@@ -148,17 +149,17 @@
             btnUndo.Location = new Point(12, 613);
             btnUndo.Name = "btnUndo";
             btnUndo.Size = new Size(75, 23);
-            btnUndo.TabIndex = 0;
+            btnUndo.TabIndex = 1;
             btnUndo.Text = "Undo";
             btnUndo.UseVisualStyleBackColor = true;
             // 
             // btnRedo
             // 
-            btnRedo.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnRedo.Location = new Point(497, 613);
+            btnRedo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnRedo.Location = new Point(93, 613);
             btnRedo.Name = "btnRedo";
             btnRedo.Size = new Size(75, 23);
-            btnRedo.TabIndex = 1;
+            btnRedo.TabIndex = 2;
             btnRedo.Text = "Redo";
             btnRedo.UseVisualStyleBackColor = true;
             // 
@@ -168,7 +169,7 @@
             statusStrip1.Location = new Point(0, 639);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(584, 22);
-            statusStrip1.TabIndex = 2;
+            statusStrip1.TabIndex = 4;
             statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
@@ -183,7 +184,7 @@
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(584, 24);
-            menuStrip1.TabIndex = 3;
+            menuStrip1.TabIndex = 0;
             menuStrip1.Text = "menuStrip1";
             // 
             // gameToolStripMenuItem
@@ -247,11 +248,25 @@
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
+            // chkUseEngine
+            // 
+            chkUseEngine.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            chkUseEngine.AutoSize = true;
+            chkUseEngine.Checked = true;
+            chkUseEngine.CheckState = CheckState.Checked;
+            chkUseEngine.Location = new Point(468, 616);
+            chkUseEngine.Name = "chkUseEngine";
+            chkUseEngine.Size = new Size(104, 19);
+            chkUseEngine.TabIndex = 3;
+            chkUseEngine.Text = "CPU opponent";
+            chkUseEngine.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(584, 661);
+            Controls.Add(chkUseEngine);
             Controls.Add(statusStrip1);
             Controls.Add(menuStrip1);
             Controls.Add(btnRedo);
@@ -291,5 +306,6 @@
         private ToolStripMenuItem euchreDeckToolStripMenuItem;
         private ToolStripMenuItem pinochleDeckToolStripMenuItem;
         private ToolStripMenuItem pokerDeckToolStripMenuItem;
+        private CheckBox chkUseEngine;
     }
 }

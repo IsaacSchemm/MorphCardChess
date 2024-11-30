@@ -11,6 +11,10 @@
         text-align: center;
     }
 
+    hr {
+        max-width: 480px;
+    }
+
     button {
         appearance: none;
         background-color: white;
@@ -97,6 +101,11 @@
         line-height: 24px;
     }
 
+    .working {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
     #license {
         max-width: 480px;
         margin: auto;
@@ -105,217 +114,233 @@
 
 @if (manager.State != null)
 {
-    <div class="score">
-        @{
-            {
-                int hearts = StateModule.GetPointsBySuit(Team.Light, Suit.Heart, manager.State);
-                int clubs = StateModule.GetPointsBySuit(Team.Light, Suit.Club, manager.State);
-                int diamonds = StateModule.GetPointsBySuit(Team.Light, Suit.Diamond, manager.State);
-                int score = StateModule.GetTotalPoints(Team.Light, manager.State);
+    <div class="@(working ? "working" : "")">
+        <div class="score">
+            @{
+                {
+                    int hearts = StateModule.GetPointsBySuit(Team.Light, Suit.Heart, manager.State);
+                    int clubs = StateModule.GetPointsBySuit(Team.Light, Suit.Club, manager.State);
+                    int diamonds = StateModule.GetPointsBySuit(Team.Light, Suit.Diamond, manager.State);
+                    int score = StateModule.GetTotalPoints(Team.Light, manager.State);
 
-                <span class="hearts @(hearts > 0 ? "active" : "")">
-                    ♡
-                    @hearts
-                </span>
+                    <span class="hearts @(hearts > 0 ? "active" : "")">
+                        ♡
+                        @hearts
+                    </span>
 
-                <span class="clubs @(clubs > 0 ? "active" : "")">
-                    ♧
-                    @clubs
-                </span>
+                    <span class="clubs @(clubs > 0 ? "active" : "")">
+                        ♧
+                        @clubs
+                    </span>
 
-                <span class="diamonds @(diamonds > 0 ? "active" : "")">
-                    ♢
-                    @diamonds
-                </span>
+                    <span class="diamonds @(diamonds > 0 ? "active" : "")">
+                        ♢
+                        @diamonds
+                    </span>
 
-                <span class="@(score > 0 ? "active" : "")">
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    @score
-                </span>
+                    <span class="@(score > 0 ? "active" : "")">
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        @score
+                    </span>
+                }
             }
-        }
-    </div>
+        </div>
 
-    <hr />
+        <hr />
 
-    <div class="hand">
-        @foreach (var cell in Interactive.GetHandButtons(Team.Light, manager.State))
-        {
-            <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)"
-                    class="@cell.ColorClass">
-                @cell.Label
-            </button>
-        }
-    </div>
-
-    <div class="hand">
-        @foreach (var cell in Interactive.GetPromotionButtons(Team.Light, manager.State))
-        {
-            <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)"
-                    class="@cell.ColorClass">
-                @cell.Label
-            </button>
-        }
-    </div>
-
-    <hr />
-
-    <div id="board">
-        @foreach (var row in Interactive.GetBoardButtons(manager.State))
-        {
-            foreach (var cell in row)
+        <div class="hand">
+            @foreach (var cell in Interactive.GetHandButtons(Team.Light, manager.State))
             {
                 <button @onclick=@(() => manager.State = cell.NextState.Value)
                         disabled="@(!cell.Enabled)"
                         class="@cell.ColorClass">
-                    @if (cell.Pieces.FirstOrDefault() is PiecePosition pp)
-                    {
-                        string suit = pp.Piece.Suit.IsHeart ? "hearts"
+                    @cell.Label
+                </button>
+            }
+        </div>
+
+        <div class="hand">
+            @foreach (var cell in Interactive.GetPromotionButtons(Team.Light, manager.State))
+            {
+                <button @onclick=@(() => manager.State = cell.NextState.Value)
+                        disabled="@(!cell.Enabled)"
+                        class="@cell.ColorClass">
+                    @cell.Label
+                </button>
+            }
+        </div>
+
+        <hr />
+
+        <div id="board">
+            @foreach (var row in Interactive.GetBoardButtons(manager.State))
+            {
+                foreach (var cell in row)
+                {
+                    <button @onclick=@(() => manager.State = cell.NextState.Value)
+                            disabled="@(!cell.Enabled)"
+                            class="@cell.ColorClass">
+                        @if (cell.Pieces.FirstOrDefault() is PiecePosition pp)
+                        {
+                            string suit = pp.Piece.Suit.IsHeart ? "hearts"
                             : pp.Piece.Suit.IsClub ? "clubs"
                             : pp.Piece.Suit.IsDiamond ? "diamonds"
                             : "spades";
 
-                        int type = pp.Type.IsRook ? 4
+                            int type = pp.Type.IsRook ? 4
                             : pp.Type.IsBishop ? 3
                             : pp.Type.IsKnight ? 2
                             : 1;
 
-                        if (pp.Piece.Team.IsLight)
-                        {
-                            type += 4;
-                        }
+                            if (pp.Piece.Team.IsLight)
+                            {
+                                type += 4;
+                            }
 
-                        <img src="cards/@(suit)/@(type).svg"
-                             alt="@cell.Label"
-                             class="@(pp.Piece.Team.IsLight ? "flipped" : "")" />
-                    }
-                    else
-                    {
-                        @cell.Label
-                    }
+                            <img src="cards/@(suit)/@(type).svg"
+                                 alt="@cell.Label"
+                                 class="@(pp.Piece.Team.IsLight ? "flipped" : "")" />
+                        }
+                        else
+                        {
+                            @cell.Label
+                        }
+                    </button>
+                }
+            }
+        </div>
+
+        <hr />
+
+        <div class="hand">
+            @foreach (var cell in Interactive.GetPromotionButtons(Team.Dark, manager.State))
+            {
+                <button @onclick=@(() => manager.State = cell.NextState.Value)
+                        disabled="@(!cell.Enabled)"
+                        class="@cell.ColorClass">
+                    @cell.Label
                 </button>
             }
-        }
-    </div>
+        </div>
 
-    <hr />
-
-    <div class="hand">
-        @foreach (var cell in Interactive.GetPromotionButtons(Team.Dark, manager.State))
-        {
-            <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)"
-                    class="@cell.ColorClass">
-                @cell.Label
-            </button>
-        }
-    </div>
-
-    <div class="hand">
-        @foreach (var cell in Interactive.GetHandButtons(Team.Dark, manager.State))
-        {
-            <button @onclick=@(() => manager.State = cell.NextState.Value)
-                    disabled="@(!cell.Enabled)"
-                    class="@cell.ColorClass">
-                @cell.Label
-            </button>
-        }
-    </div>
-
-    <hr />
-
-    <div class="score">
-        @{
+        <div class="hand">
+            @foreach (var cell in Interactive.GetHandButtons(Team.Dark, manager.State))
             {
-                int hearts = StateModule.GetPointsBySuit(Team.Dark, Suit.Heart, manager.State);
-                int clubs = StateModule.GetPointsBySuit(Team.Dark, Suit.Club, manager.State);
-                int diamonds = StateModule.GetPointsBySuit(Team.Dark, Suit.Diamond, manager.State);
-                int score = StateModule.GetTotalPoints(Team.Dark, manager.State);
-
-                <span class="hearts @(hearts > 0 ? "active" : "")">
-                    ♡
-                    @hearts
-                </span>
-
-                <span class="clubs @(clubs > 0 ? "active" : "")">
-                    ♧
-                    @clubs
-                </span>
-
-                <span class="diamonds @(diamonds > 0 ? "active" : "")">
-                    ♢
-                    @diamonds
-                </span>
-
-                <span class="@(score > 0 ? "active" : "")">
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    @score
-                </span>
+                <button @onclick=@(() => manager.State = cell.NextState.Value)
+                        disabled="@(!cell.Enabled)"
+                        class="@cell.ColorClass">
+                    @cell.Label
+                </button>
             }
-        }
+        </div>
+
+        <hr />
+
+        <div class="score">
+            @{
+                {
+                    int hearts = StateModule.GetPointsBySuit(Team.Dark, Suit.Heart, manager.State);
+                    int clubs = StateModule.GetPointsBySuit(Team.Dark, Suit.Club, manager.State);
+                    int diamonds = StateModule.GetPointsBySuit(Team.Dark, Suit.Diamond, manager.State);
+                    int score = StateModule.GetTotalPoints(Team.Dark, manager.State);
+
+                    <span class="hearts @(hearts > 0 ? "active" : "")">
+                        ♡
+                        @hearts
+                    </span>
+
+                    <span class="clubs @(clubs > 0 ? "active" : "")">
+                        ♧
+                        @clubs
+                    </span>
+
+                    <span class="diamonds @(diamonds > 0 ? "active" : "")">
+                        ♢
+                        @diamonds
+                    </span>
+
+                    <span class="@(score > 0 ? "active" : "")">
+                        &nbsp;
+                        &nbsp;
+                        &nbsp;
+                        @score
+                    </span>
+                }
+            }
+        </div>
+
+        <hr />
+
+        <div class="hand">
+            <button @onclick=@(() => manager.State = manager.PreviousStates.First())
+                    disabled="@(!manager.PreviousStates.Any())">
+                Undo
+            </button>
+            <button @onclick=@(() => manager.State = manager.NextStates.First())
+                    disabled="@(!manager.NextStates.Any())">
+                Redo
+            </button>
+        </div>
+
+        <div>
+            <label>
+                <input type="checkbox" @bind="@useEngine" />
+                CPU opponent
+            </label>
+        </div>
+
+        <hr />
+
+        <div role="status">
+            @StateModule.GetStatusText(manager.State)
+        </div>
+
+        <hr />
+
+        <p>
+            <a href="https://www.lakora.us/morph-card-chess" target="_blank">
+                How to play
+            </a>
+        </p>
+
+        <div class="hand">
+            <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Pinochle))>
+                New game
+            </button>
+        </div>
+
+        <p>
+            <details>
+                <summary>Decks</summary>
+                <div class="hand">
+                    <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Pinochle))>
+                        Pinochle deck
+                    </button>
+                    <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Euchre))>
+                        Euchre deck
+                    </button>
+                    <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Poker))>
+                        Poker deck
+                    </button>
+                </div>
+            </details>
+        </p>
+
+        <hr />
+
+        <label>
+            <input type="checkbox" @bind="@(manager.AutoAdvance)" />
+            Automatically proceed when only one option is available
+        </label>
     </div>
-
-    <hr />
-
-    <div class="hand">
-        <button @onclick=@(() => manager.State = manager.PreviousStates.First())
-                disabled="@(!manager.PreviousStates.Any())">
-            Undo
-        </button>
-        <button @onclick=@(() => manager.State = manager.NextStates.First())
-                disabled="@(!manager.NextStates.Any())">
-            Redo
-        </button>
-    </div>
-
-    <hr />
-
-    <div role="status">
-        @StateModule.GetStatusText(manager.State)
-    </div>
-
-    <hr />
-
-    <p>
-        <a href="https://www.lakora.us/morph-card-chess" target="_blank">
-            How to play
-        </a>
-    </p>
-
-    <div>
-        New game:
-    </div>
-
-    <div class="hand">
-        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Pinochle))>
-            Pinochle deck
-        </button>
-        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Euchre))>
-            Euchre deck
-        </button>
-        <button @onclick=@(() => manager.State = StateModule.CreateStartingState(DeckType.Poker))>
-            Poker deck
-        </button>
-    </div>
-
-    <hr />
-
-    <label>
-        <input type="checkbox" @bind="@(manager.AutoAdvance)" />
-        Automatically proceed when only one option is available
-    </label>
 
     <hr />
 
     <p>
         <a href="https://github.com/IsaacSchemm/MorphCardChess" target="_blank">
-            Morph Card Chess for Blazor
+            Morph Card Chess 2.0 for Blazor
         </a>
     </p>
 
@@ -341,11 +366,36 @@
 }
 
 @code {
+    bool useEngine = true;
+    bool working = false;
+
     StateManager manager = new StateManager();
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         manager.State = StateModule.CreateStartingState(DeckType.Pinochle);
+
+        manager.StateChanged += async (sender, eventArgs) =>
+        {
+            if (!working && manager.State.Team.IsLight && useEngine)
+            {
+                working = true;
+                StateHasChanged();
+
+                await Task.Delay(250);
+
+                var stateChain = Engine.GetBestStateChain(manager.State);
+                foreach (var x in stateChain.stack.Reverse())
+                {
+                    manager.State = x;
+                    StateHasChanged();
+                    await Task.Delay(250);
+                }
+
+                working = false;
+                StateHasChanged();
+            }
+        };
     }
 }
