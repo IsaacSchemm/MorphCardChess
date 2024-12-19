@@ -87,8 +87,12 @@ module Engine =
         | { stack = state :: _ } -> ScoreState state
 
     let GetBestStateChain state =
+        let shuffled = {
+            state with
+                Deck = state.Deck |> List.randomShuffle
+        }
         let initialChain =
-            { stack = [state] }
+            { stack = [shuffled] }
         let topFive =
             GetPossibleStateChains initialChain
             |> Seq.sortByDescending ScoreStateChain
