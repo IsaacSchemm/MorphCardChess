@@ -28,11 +28,11 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="1.4142136"
-     inkscape:cx="100.05561"
+     inkscape:cx="62.578948"
      inkscape:cy="150.61374"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="-8"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
@@ -1295,7 +1295,7 @@
          id="tspan86463"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';stroke-width:1.05833"
          x="8.4666214"
-         y="14.399017"></tspan></text>
+         y="14.399017" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
@@ -1307,61 +1307,7 @@
          id="tspan9936"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';stroke-width:1.05833"
          x="-93.133331"
-         y="-87.105637"></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:11.2889px;line-height:normal;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="25.342049"
-       y="12.019165"
-       id="text14886"
-       clip-path="none"><tspan
-         sodipodi:role="line"
-         id="tspan14884"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#b3b3b3;stroke-width:0.280016"
-         x="25.342049"
-         y="12.019165">6</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:11.2889px;line-height:normal;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="-76.257843"
-       y="-89.580582"
-       id="text14898"
-       transform="scale(-1)"><tspan
-         sodipodi:role="line"
-         id="tspan14896"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#b3b3b3;stroke-width:0.280016"
-         x="-76.257843"
-         y="-89.580582">6</tspan></text>
-    <rect
-       style="fill:#000000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       id="rect2185"
-       width="16.933331"
-       height="16.933331"
-       x="84.666656"
-       y="0" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       x="93.133331"
-       y="14.651215"
-       id="text2197"><tspan
-         sodipodi:role="line"
-         id="tspan2195"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';fill:#ffffff;stroke-width:1.05833"
-         x="93.133331"
-         y="14.651215">♞</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:5.64444px;line-height:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#000000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       x="93.031342"
-       y="27.156921"
-       id="text49706"
-       clip-path="none"><tspan
-         sodipodi:role="line"
-         id="tspan49704"
-         style="font-size:5.64444px;fill:#000000;stroke-width:8.46667"
-         x="93.031342"
-         y="27.156921">Bee</tspan></text>
+         y="-87.105637" /></text>
     <g
        id="g513"
        clip-path="url(#clipPath1793)">

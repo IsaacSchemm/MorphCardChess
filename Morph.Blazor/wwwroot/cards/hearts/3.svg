@@ -28,12 +28,12 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="0.25"
-     inkscape:cx="986"
+     inkscape:cx="774"
      inkscape:cy="84"
      inkscape:window-width="1920"
-     inkscape:window-height="974"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      inkscape:lockguides="true">
@@ -55,8 +55,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect14718"
@@ -64,8 +63,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect14697"
@@ -73,8 +71,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect2715"
@@ -82,8 +79,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect2682"
@@ -91,8 +87,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect2649"
@@ -100,8 +95,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect1170"
@@ -109,8 +103,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect1116"
@@ -118,8 +111,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect9841"
@@ -127,8 +119,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect9806"
@@ -136,8 +127,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect9771"
@@ -145,8 +135,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect7108"
@@ -154,8 +143,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect7075"
@@ -163,8 +151,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect7042"
@@ -172,8 +159,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect32887"
@@ -181,8 +167,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect31813"
@@ -190,8 +175,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect23889"
@@ -199,8 +183,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect13564"
@@ -208,8 +191,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect11057"
@@ -217,8 +199,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <inkscape:path-effect
        effect="powerclip"
        id="path-effect11200"
@@ -226,8 +207,7 @@
        lpeversion="1"
        inverse="true"
        flatten="false"
-       hide_clip="false"
-        />
+       hide_clip="false" />
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath3481">
@@ -699,13 +679,6 @@
        height="711.19989"
        x="-8.9385821e-06"
        y="-203.19997" />
-    <rect
-       style="fill:#ff0000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       id="rect2069"
-       width="16.933331"
-       height="16.933331"
-       x="84.666649"
-       y="0" />
     <g
        id="path7232-2"
        transform="translate(-7.2894531e-6,-203.19997)" />
@@ -719,7 +692,7 @@
          id="tspan93058"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';fill:#ff0000;stroke-width:1.05833"
          x="8.4666452"
-         y="14.399109"></tspan></text>
+         y="14.399109" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';text-align:center;text-anchor:middle;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
@@ -731,7 +704,7 @@
          id="tspan6669"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';fill:#ff0000;stroke-width:1.05833"
          x="-93.133316"
-         y="-87.200882"></tspan></text>
+         y="-87.200882" /></text>
     <g
        id="g6092"
        clip-path="url(#clipPath36040)"
@@ -816,51 +789,5 @@
        style="fill:#28170b;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 62.795129,59.241874 c -0.82036,0.24499 -1.66065,0.47542 -2.51871,0.68988 0.0703,0.7817 0.26681,1.25503 0.66301,1.28933 0.43604,0.0377 1.11134,-0.70738 1.8557,-1.97921 z"
        clip-path="none" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       x="93.133263"
-       y="14.651291"
-       id="text80598"><tspan
-         sodipodi:role="line"
-         id="tspan80596"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';fill:#ffffff;stroke-width:1.05833"
-         x="93.133263"
-         y="14.651291">♝</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:11.2889px;line-height:normal;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="25.342112"
-       y="12.068863"
-       id="text11317"><tspan
-         sodipodi:role="line"
-         id="tspan11315"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#b3b3b3;stroke-width:0.280016"
-         x="25.342112"
-         y="12.068863">3</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:11.2889px;line-height:normal;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="-76.257858"
-       y="-89.531143"
-       id="text21038"
-       transform="scale(-1)"><tspan
-         sodipodi:role="line"
-         id="tspan21036"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#b3b3b3;stroke-width:0.280016"
-         x="-76.257858"
-         y="-89.531143">3</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:5.64444px;line-height:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#ff0000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       x="93.170525"
-       y="27.293427"
-       id="text12888"
-       clip-path="none"><tspan
-         sodipodi:role="line"
-         id="tspan12886"
-         style="font-size:5.64444px;fill:#ff0000;stroke-width:8.46667"
-         x="93.170525"
-         y="27.293427">Snake</tspan></text>
   </g>
 </svg>

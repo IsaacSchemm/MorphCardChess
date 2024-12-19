@@ -28,12 +28,12 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="0.35355339"
-     inkscape:cx="1294.0054"
-     inkscape:cy="-98.994949"
+     inkscape:cx="1144.0988"
+     inkscape:cy="-96.166522"
      inkscape:window-width="1920"
-     inkscape:window-height="974"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      inkscape:lockguides="true">
@@ -712,7 +712,7 @@
          id="tspan93242"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';stroke-width:1.05833"
          x="8.4666767"
-         y="14.399116"></tspan></text>
+         y="14.399116" /></text>
     <g
        id="g15244"
        clip-path="url(#clipPath27417)"
@@ -892,58 +892,6 @@
          id="tspan9996"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';stroke-width:1.05833"
          x="-93.133369"
-         y="-87.105812"></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;line-height:normal;font-family:Consolas;-inkscape-font-specification:Consolas;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="25.397219"
-       y="12.068886"
-       id="text14894"><tspan
-         sodipodi:role="line"
-         id="tspan14892"
-         style="stroke-width:0.280016"
-         x="25.397219"
-         y="12.068886">8</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.2889px;line-height:normal;font-family:Consolas;-inkscape-font-specification:Consolas;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#b3b3b3;stroke-width:0.280016;-inkscape-stroke:none;stop-color:#000000"
-       x="-76.202766"
-       y="-89.531136"
-       id="text14906"
-       transform="scale(-1)"><tspan
-         sodipodi:role="line"
-         id="tspan14904"
-         style="stroke-width:0.280016"
-         x="-76.202766"
-         y="-89.531136">8</tspan></text>
-    <rect
-       style="fill:#000000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       id="rect2181"
-       width="16.933331"
-       height="16.933331"
-       x="84.666695"
-       y="3.8352315e-05" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.9333px;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       x="93.137459"
-       y="14.634803"
-       id="text2193"><tspan
-         sodipodi:role="line"
-         id="tspan2191"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Segoe UI Variable';-inkscape-font-specification:'Segoe UI Variable';fill:#ffffff;stroke-width:1.05833"
-         x="93.137459"
-         y="14.634803">♜</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:5.64444px;line-height:normal;font-family:Calibri;-inkscape-font-specification:Calibri;text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#000000;stroke-width:8.46667;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
-       x="93.089241"
-       y="27.179054"
-       id="text49714"><tspan
-         sodipodi:role="line"
-         id="tspan49712"
-         style="font-size:5.64444px;fill:#000000;stroke-width:8.46667"
-         x="93.089241"
-         y="27.179054">Cat</tspan></text>
+         y="-87.105812" /></text>
   </g>
 </svg>
